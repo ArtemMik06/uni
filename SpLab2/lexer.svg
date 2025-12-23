@@ -1,0 +1,1726 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="278" onload="init(evt)" viewBox="0 0 1200 278" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples. -->
+<!-- NOTES:  -->
+<defs>
+	<linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+		<stop stop-color="#eeeeee" offset="5%" />
+		<stop stop-color="#eeeeb0" offset="95%" />
+	</linearGradient>
+</defs>
+<style type="text/css">
+	text { font-family:Verdana; font-size:12px; fill:rgb(0,0,0); }
+	#search, #ignorecase { opacity:0.1; cursor:pointer; }
+	#search:hover, #search.show, #ignorecase:hover, #ignorecase.show { opacity:1; }
+	#subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+	#title { text-anchor:middle; font-size:17px}
+	#unzoom { cursor:pointer; }
+	#frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+	.hide { display:none; }
+	.parent { opacity:0.5; }
+</style>
+<script type="text/ecmascript">
+<![CDATA[
+	"use strict";
+	var details, searchbtn, unzoombtn, matchedtxt, svg, searching, currentSearchTerm, ignorecase, ignorecaseBtn;
+	function init(evt) {
+		details = document.getElementById("details").firstChild;
+		searchbtn = document.getElementById("search");
+		ignorecaseBtn = document.getElementById("ignorecase");
+		unzoombtn = document.getElementById("unzoom");
+		matchedtxt = document.getElementById("matched");
+		svg = document.getElementsByTagName("svg")[0];
+		searching = 0;
+		currentSearchTerm = null;
+
+		// use GET parameters to restore a flamegraphs state.
+		var params = get_params();
+		if (params.x && params.y)
+			zoom(find_group(document.querySelector('[x="' + params.x + '"][y="' + params.y + '"]')));
+                if (params.s) search(params.s);
+	}
+
+	// event listeners
+	window.addEventListener("click", function(e) {
+		var target = find_group(e.target);
+		if (target) {
+			if (target.nodeName == "a") {
+				if (e.ctrlKey === false) return;
+				e.preventDefault();
+			}
+			if (target.classList.contains("parent")) unzoom(true);
+			zoom(target);
+			if (!document.querySelector('.parent')) {
+				// we have basically done a clearzoom so clear the url
+				var params = get_params();
+				if (params.x) delete params.x;
+				if (params.y) delete params.y;
+				history.replaceState(null, null, parse_params(params));
+				unzoombtn.classList.add("hide");
+				return;
+			}
+
+			// set parameters for zoom state
+			var el = target.querySelector("rect");
+			if (el && el.attributes && el.attributes.y && el.attributes._orig_x) {
+				var params = get_params()
+				params.x = el.attributes._orig_x.value;
+				params.y = el.attributes.y.value;
+				history.replaceState(null, null, parse_params(params));
+			}
+		}
+		else if (e.target.id == "unzoom") clearzoom();
+		else if (e.target.id == "search") search_prompt();
+		else if (e.target.id == "ignorecase") toggle_ignorecase();
+	}, false)
+
+	// mouse-over for info
+	// show
+	window.addEventListener("mouseover", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = "Function: " + g_to_text(target);
+	}, false)
+
+	// clear
+	window.addEventListener("mouseout", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = ' ';
+	}, false)
+
+	// ctrl-F for search
+	// ctrl-I to toggle case-sensitive search
+	window.addEventListener("keydown",function (e) {
+		if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+			e.preventDefault();
+			search_prompt();
+		}
+		else if (e.ctrlKey && e.keyCode === 73) {
+			e.preventDefault();
+			toggle_ignorecase();
+		}
+	}, false)
+
+	// functions
+	function get_params() {
+		var params = {};
+		var paramsarr = window.location.search.substr(1).split('&');
+		for (var i = 0; i < paramsarr.length; ++i) {
+			var tmp = paramsarr[i].split("=");
+			if (!tmp[0] || !tmp[1]) continue;
+			params[tmp[0]]  = decodeURIComponent(tmp[1]);
+		}
+		return params;
+	}
+	function parse_params(params) {
+		var uri = "?";
+		for (var key in params) {
+			uri += key + '=' + encodeURIComponent(params[key]) + '&';
+		}
+		if (uri.slice(-1) == "&")
+			uri = uri.substring(0, uri.length - 1);
+		if (uri == '?')
+			uri = window.location.href.split('?')[0];
+		return uri;
+	}
+	function find_child(node, selector) {
+		var children = node.querySelectorAll(selector);
+		if (children.length) return children[0];
+	}
+	function find_group(node) {
+		var parent = node.parentElement;
+		if (!parent) return;
+		if (parent.id == "frames") return node;
+		return find_group(parent);
+	}
+	function orig_save(e, attr, val) {
+		if (e.attributes["_orig_" + attr] != undefined) return;
+		if (e.attributes[attr] == undefined) return;
+		if (val == undefined) val = e.attributes[attr].value;
+		e.setAttribute("_orig_" + attr, val);
+	}
+	function orig_load(e, attr) {
+		if (e.attributes["_orig_"+attr] == undefined) return;
+		e.attributes[attr].value = e.attributes["_orig_" + attr].value;
+		e.removeAttribute("_orig_"+attr);
+	}
+	function g_to_text(e) {
+		var text = find_child(e, "title").firstChild.nodeValue;
+		return (text)
+	}
+	function g_to_func(e) {
+		var func = g_to_text(e);
+		// if there's any manipulation we want to do to the function
+		// name before it's searched, do it here before returning.
+		return (func);
+	}
+	function update_text(e) {
+		var r = find_child(e, "rect");
+		var t = find_child(e, "text");
+		var w = parseFloat(r.attributes.width.value) -3;
+		var txt = find_child(e, "title").textContent.replace(/\([^(]*\)$/,"");
+		t.attributes.x.value = parseFloat(r.attributes.x.value) + 3;
+
+		// Smaller than this size won't fit anything
+		if (w < 2 * 12 * 0.59) {
+			t.textContent = "";
+			return;
+		}
+
+		t.textContent = txt;
+		var sl = t.getSubStringLength(0, txt.length);
+		// check if only whitespace or if we can fit the entire string into width w
+		if (/^ *$/.test(txt) || sl < w)
+			return;
+
+		// this isn't perfect, but gives a good starting point
+		// and avoids calling getSubStringLength too often
+		var start = Math.floor((w/sl) * txt.length);
+		for (var x = start; x > 0; x = x-2) {
+			if (t.getSubStringLength(0, x + 2) <= w) {
+				t.textContent = txt.substring(0, x) + "..";
+				return;
+			}
+		}
+		t.textContent = "";
+	}
+
+	// zoom
+	function zoom_reset(e) {
+		if (e.attributes != undefined) {
+			orig_load(e, "x");
+			orig_load(e, "width");
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_reset(c[i]);
+		}
+	}
+	function zoom_child(e, x, ratio) {
+		if (e.attributes != undefined) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = (parseFloat(e.attributes.x.value) - x - 10) * ratio + 10;
+				if (e.tagName == "text")
+					e.attributes.x.value = find_child(e.parentNode, "rect[x]").attributes.x.value + 3;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseFloat(e.attributes.width.value) * ratio;
+			}
+		}
+
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_child(c[i], x - 10, ratio);
+		}
+	}
+	function zoom_parent(e) {
+		if (e.attributes) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = 10;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseInt(svg.width.baseVal.value) - (10 * 2);
+			}
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_parent(c[i]);
+		}
+	}
+	function zoom(node) {
+		var attr = find_child(node, "rect").attributes;
+		var width = parseFloat(attr.width.value);
+		var xmin = parseFloat(attr.x.value);
+		var xmax = parseFloat(xmin + width);
+		var ymin = parseFloat(attr.y.value);
+		var ratio = (svg.width.baseVal.value - 2 * 10) / width;
+
+		// XXX: Workaround for JavaScript float issues (fix me)
+		var fudge = 0.0001;
+
+		unzoombtn.classList.remove("hide");
+
+		var el = document.getElementById("frames").children;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var a = find_child(e, "rect").attributes;
+			var ex = parseFloat(a.x.value);
+			var ew = parseFloat(a.width.value);
+			var upstack;
+			// Is it an ancestor
+			if (0 == 0) {
+				upstack = parseFloat(a.y.value) > ymin;
+			} else {
+				upstack = parseFloat(a.y.value) < ymin;
+			}
+			if (upstack) {
+				// Direct ancestor
+				if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+					e.classList.add("parent");
+					zoom_parent(e);
+					update_text(e);
+				}
+				// not in current path
+				else
+					e.classList.add("hide");
+			}
+			// Children maybe
+			else {
+				// no common path
+				if (ex < xmin || ex + fudge >= xmax) {
+					e.classList.add("hide");
+				}
+				else {
+					zoom_child(e, xmin, ratio);
+					update_text(e);
+				}
+			}
+		}
+		search();
+	}
+	function unzoom(dont_update_text) {
+		unzoombtn.classList.add("hide");
+		var el = document.getElementById("frames").children;
+		for(var i = 0; i < el.length; i++) {
+			el[i].classList.remove("parent");
+			el[i].classList.remove("hide");
+			zoom_reset(el[i]);
+			if(!dont_update_text) update_text(el[i]);
+		}
+		search();
+	}
+	function clearzoom() {
+		unzoom();
+
+		// remove zoom state
+		var params = get_params();
+		if (params.x) delete params.x;
+		if (params.y) delete params.y;
+		history.replaceState(null, null, parse_params(params));
+	}
+
+	// search
+	function toggle_ignorecase() {
+		ignorecase = !ignorecase;
+		if (ignorecase) {
+			ignorecaseBtn.classList.add("show");
+		} else {
+			ignorecaseBtn.classList.remove("show");
+		}
+		reset_search();
+		search();
+	}
+	function reset_search() {
+		var el = document.querySelectorAll("#frames rect");
+		for (var i = 0; i < el.length; i++) {
+			orig_load(el[i], "fill")
+		}
+		var params = get_params();
+		delete params.s;
+		history.replaceState(null, null, parse_params(params));
+	}
+	function search_prompt() {
+		if (!searching) {
+			var term = prompt("Enter a search term (regexp " +
+			    "allowed, eg: ^ext4_)"
+			    + (ignorecase ? ", ignoring case" : "")
+			    + "\nPress Ctrl-i to toggle case sensitivity", "");
+			if (term != null) search(term);
+		} else {
+			reset_search();
+			searching = 0;
+			currentSearchTerm = null;
+			searchbtn.classList.remove("show");
+			searchbtn.firstChild.nodeValue = "Search"
+			matchedtxt.classList.add("hide");
+			matchedtxt.firstChild.nodeValue = ""
+		}
+	}
+	function search(term) {
+		if (term) currentSearchTerm = term;
+		if (currentSearchTerm === null) return;
+
+		var re = new RegExp(currentSearchTerm, ignorecase ? 'i' : '');
+		var el = document.getElementById("frames").children;
+		var matches = new Object();
+		var maxwidth = 0;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var func = g_to_func(e);
+			var rect = find_child(e, "rect");
+			if (func == null || rect == null)
+				continue;
+
+			// Save max width. Only works as we have a root frame
+			var w = parseFloat(rect.attributes.width.value);
+			if (w > maxwidth)
+				maxwidth = w;
+
+			if (func.match(re)) {
+				// highlight
+				var x = parseFloat(rect.attributes.x.value);
+				orig_save(rect, "fill");
+				rect.attributes.fill.value = "rgb(230,0,230)";
+
+				// remember matches
+				if (matches[x] == undefined) {
+					matches[x] = w;
+				} else {
+					if (w > matches[x]) {
+						// overwrite with parent
+						matches[x] = w;
+					}
+				}
+				searching = 1;
+			}
+		}
+		if (!searching)
+			return;
+		var params = get_params();
+		params.s = currentSearchTerm;
+		history.replaceState(null, null, parse_params(params));
+
+		searchbtn.classList.add("show");
+		searchbtn.firstChild.nodeValue = "Reset Search";
+
+		// calculate percent matched, excluding vertical overlap
+		var count = 0;
+		var lastx = -1;
+		var lastw = 0;
+		var keys = Array();
+		for (k in matches) {
+			if (matches.hasOwnProperty(k))
+				keys.push(k);
+		}
+		// sort the matched frames by their x location
+		// ascending, then width descending
+		keys.sort(function(a, b){
+			return a - b;
+		});
+		// Step through frames saving only the biggest bottom-up frames
+		// thanks to the sort order. This relies on the tree property
+		// where children are always smaller than their parents.
+		var fudge = 0.0001;	// JavaScript floating point
+		for (var k in keys) {
+			var x = parseFloat(keys[k]);
+			var w = matches[keys[k]];
+			if (x >= lastx + lastw - fudge) {
+				count += w;
+				lastx = x;
+				lastw = w;
+			}
+		}
+		// display matched percent
+		matchedtxt.classList.remove("hide");
+		var pct = 100 * count / maxwidth;
+		if (pct != 100) pct = pct.toFixed(1)
+		matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+	}
+]]>
+</script>
+<rect x="0.0" y="0" width="1200.0" height="278.0" fill="url(#background)"  />
+<text id="title" x="600.00" y="24" >Flame Graph</text>
+<text id="details" x="10.00" y="261" > </text>
+<text id="unzoom" x="10.00" y="24" class="hide">Reset Zoom</text>
+<text id="search" x="1090.00" y="24" >Search</text>
+<text id="ignorecase" x="1174.00" y="24" >ic</text>
+<text id="matched" x="1090.00" y="261" > </text>
+<g id="frames">
+<g >
+<title>libsystem_malloc`malloc_type_malloc (30 samples, 0.70%)</title><rect x="330.4" y="85" width="8.3" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="333.42" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_lock_slow (1 samples, 0.02%)</title><rect x="1135.2" y="85" width="0.2" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
+<text  x="1138.17" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::locale(std::locale.const&amp;) (1 samples, 0.02%)</title><rect x="1136.3" y="149" width="0.3" height="15.0" fill="rgb(232,128,30)" rx="2" ry="2" />
+<text  x="1139.28" y="159.5" ></text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (45 samples, 1.05%)</title><rect x="648.1" y="101" width="12.4" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="651.08" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fwrite (1 samples, 0.02%)</title><rect x="1134.9" y="85" width="0.3" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="1137.90" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`funlockfile (1 samples, 0.02%)</title><rect x="1185.3" y="101" width="0.3" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="1188.32" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_tiny_check_and_zero_inline_meta_from_freelist (2 samples, 0.05%)</title><rect x="389.6" y="53" width="0.6" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
+<text  x="392.65" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_c`funlockfile (1 samples, 0.02%)</title><rect x="1094.1" y="117" width="0.3" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="1097.12" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fwrite (4 samples, 0.09%)</title><rect x="81.1" y="133" width="1.1" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="84.08" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`os_unfair_lock_unlock (4 samples, 0.09%)</title><rect x="1125.8" y="53" width="1.1" height="15.0" fill="rgb(208,17,4)" rx="2" ry="2" />
+<text  x="1128.81" y="63.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::use_facet(std::locale::id&amp;).const (1 samples, 0.02%)</title><rect x="1188.9" y="165" width="0.3" height="15.0" fill="rgb(248,200,47)" rx="2" ry="2" />
+<text  x="1191.90" y="175.5" ></text>
+</g>
+<g >
+<title>lexer`std::__empty_state&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (18 samples, 0.42%)</title><rect x="212.2" y="117" width="5.0" height="15.0" fill="rgb(236,145,34)" rx="2" ry="2" />
+<text  x="215.22" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_lock (1 samples, 0.02%)</title><rect x="1106.5" y="69" width="0.3" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="1109.52" y="79.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::use_facet(std::locale::id&amp;).const (3 samples, 0.07%)</title><rect x="1099.9" y="101" width="0.8" height="15.0" fill="rgb(248,200,47)" rx="2" ry="2" />
+<text  x="1102.91" y="111.5" ></text>
+</g>
+<g >
+<title>libc++abi`DYLD-STUB$$malloc_type_malloc (15 samples, 0.35%)</title><rect x="497.1" y="85" width="4.1" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="500.10" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::codecvt&lt;char,.char, (1 samples, 0.02%)</title><rect x="961.6" y="117" width="0.3" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="964.60" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_lock (1 samples, 0.02%)</title><rect x="1135.7" y="85" width="0.3" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="1138.72" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`flockfile (1 samples, 0.02%)</title><rect x="1102.7" y="101" width="0.2" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1105.66" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`__bzero (34 samples, 0.79%)</title><rect x="441.4" y="85" width="9.4" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="444.45" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`localeconv_l (2 samples, 0.05%)</title><rect x="1127.7" y="85" width="0.6" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="1130.74" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$std::ios_base::getloc().const (1 samples, 0.02%)</title><rect x="15.5" y="149" width="0.3" height="15.0" fill="rgb(229,113,27)" rx="2" ry="2" />
+<text  x="18.51" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`funlockfile (3 samples, 0.07%)</title><rect x="25.2" y="117" width="0.8" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="28.15" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (12 samples, 0.28%)</title><rect x="470.1" y="101" width="3.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="473.10" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_kernel`__error (1 samples, 0.02%)</title><rect x="1131.6" y="69" width="0.3" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="1134.59" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$pthread_mutex_lock (3 samples, 0.07%)</title><rect x="43.6" y="85" width="0.8" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="46.61" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (3 samples, 0.07%)</title><rect x="936.5" y="117" width="0.9" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="939.53" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::sub_match&lt;char.const*&gt;&gt;::__append(unsigned (56 samples, 1.31%)</title><rect x="645.6" y="117" width="15.4" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="648.60" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memmove (3 samples, 0.07%)</title><rect x="1120.0" y="53" width="0.8" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+<text  x="1123.02" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_unlock_init_slow (1 samples, 0.02%)</title><rect x="1093.0" y="85" width="0.3" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="1096.02" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_free (123 samples, 2.87%)</title><rect x="674.0" y="117" width="33.9" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="676.97" y="127.5" >li..</text>
+</g>
+<g >
+<title>lexer`std::__loop&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (10 samples, 0.23%)</title><rect x="219.1" y="117" width="2.8" height="15.0" fill="rgb(226,100,23)" rx="2" ry="2" />
+<text  x="222.11" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (1 samples, 0.02%)</title><rect x="1119.7" y="53" width="0.3" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1122.75" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$__error (1 samples, 0.02%)</title><rect x="1088.9" y="85" width="0.3" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="1091.89" y="95.5" ></text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (1 samples, 0.02%)</title><rect x="937.4" y="133" width="0.2" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="940.36" y="143.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::ctype&lt;char&gt;::do_widen(char.const*, (3 samples, 0.07%)</title><rect x="1099.1" y="101" width="0.8" height="15.0" fill="rgb(252,216,51)" rx="2" ry="2" />
+<text  x="1102.08" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::__state&lt;char&gt;::__state(std::__state&lt;char&gt;.const&amp;) (16 samples, 0.37%)</title><rect x="93.5" y="133" width="4.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="96.48" y="143.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__num_put&lt;char&gt;::__widen_and_group_int(char*,.char*, (8 samples, 0.19%)</title><rect x="1099.1" y="117" width="2.2" height="15.0" fill="rgb(226,98,23)" rx="2" ry="2" />
+<text  x="1102.08" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_lock_init_slow (4 samples, 0.09%)</title><rect x="1090.5" y="85" width="1.1" height="15.0" fill="rgb(241,167,40)" rx="2" ry="2" />
+<text  x="1093.54" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`funlockfile (4 samples, 0.09%)</title><rect x="1133.8" y="85" width="1.1" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="1136.80" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::sub_match&lt;char.const*&gt;&gt;::__append(unsigned (4 samples, 0.09%)</title><rect x="910.6" y="133" width="1.1" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="913.64" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_lock_slow (15 samples, 0.35%)</title><rect x="46.1" y="85" width="4.1" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
+<text  x="49.09" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::__state&lt;char&gt;&gt;::__swap_out_circular_buffer(std::__split_buffer&lt;std::__state&lt;char&gt;&amp;&gt;&amp;) (166 samples, 3.88%)</title><rect x="279.2" y="101" width="45.7" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="282.17" y="111.5" >lexe..</text>
+</g>
+<g >
+<title>libc++.1`std::numpunct&lt;char&gt;::do_grouping().const (2 samples, 0.05%)</title><rect x="1100.7" y="101" width="0.6" height="15.0" fill="rgb(217,59,14)" rx="2" ry="2" />
+<text  x="1103.74" y="111.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__stdoutbuf&lt;char&gt;::xsputn(char.const*, (3 samples, 0.07%)</title><rect x="23.2" y="117" width="0.9" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="26.22" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$memcpy (4 samples, 0.09%)</title><rect x="618.9" y="101" width="1.1" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="621.87" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_lock (1 samples, 0.02%)</title><rect x="73.4" y="101" width="0.2" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="76.37" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memset (2 samples, 0.05%)</title><rect x="450.8" y="85" width="0.6" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="453.81" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_list_remove_ptr (2 samples, 0.05%)</title><rect x="466.0" y="69" width="0.5" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="468.97" y="79.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_streambuf&lt;char&gt;::uflow() (4 samples, 0.09%)</title><rect x="1184.5" y="149" width="1.1" height="15.0" fill="rgb(211,27,6)" rx="2" ry="2" />
+<text  x="1187.49" y="159.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$bzero (6 samples, 0.14%)</title><rect x="617.2" y="101" width="1.7" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="620.22" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`_sread (3 samples, 0.07%)</title><rect x="1184.5" y="69" width="0.8" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="1187.49" y="79.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$std::basic_ostream&lt;char&gt;::sentry::~sentry() (4 samples, 0.09%)</title><rect x="16.6" y="133" width="1.1" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="19.61" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`std::__state&lt;char&gt;::__state(std::__state&lt;char&gt;.const&amp;) (442 samples, 10.32%)</title><rect x="474.2" y="117" width="121.8" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="477.23" y="127.5" >lexer`std::__st..</text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (1 samples, 0.02%)</title><rect x="1109.3" y="69" width="0.3" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1112.28" y="79.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__pad_and_output[abi:ne190102]&lt;char&gt;(std::ostreambuf_iterator&lt;char&gt;,.char (31 samples, 0.72%)</title><rect x="1102.1" y="117" width="8.6" height="15.0" fill="rgb(231,121,28)" rx="2" ry="2" />
+<text  x="1105.11" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sflush (1 samples, 0.02%)</title><rect x="961.9" y="117" width="0.3" height="15.0" fill="rgb(210,25,5)" rx="2" ry="2" />
+<text  x="964.88" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_szone_free (2 samples, 0.05%)</title><rect x="944.8" y="133" width="0.5" height="15.0" fill="rgb(226,96,23)" rx="2" ry="2" />
+<text  x="947.80" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$__error (2 samples, 0.05%)</title><rect x="1104.9" y="69" width="0.5" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="1107.87" y="79.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$memcmp (5 samples, 0.12%)</title><rect x="204.8" y="101" width="1.4" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="207.78" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::basic_regex&lt;char,.std::regex_traits&lt;char&gt;&gt;::__search&lt;std::allocator&lt;std::sub_match&lt;char (5 samples, 0.12%)</title><rect x="1179.5" y="165" width="1.4" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="1182.53" y="175.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_unlock_slow (3 samples, 0.07%)</title><rect x="1133.8" y="69" width="0.8" height="15.0" fill="rgb(239,156,37)" rx="2" ry="2" />
+<text  x="1136.80" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__ultoa (3 samples, 0.07%)</title><rect x="1112.6" y="85" width="0.8" height="15.0" fill="rgb(233,133,31)" rx="2" ry="2" />
+<text  x="1115.58" y="95.5" ></text>
+</g>
+<g >
+<title>libc++abi`DYLD-STUB$$free (32 samples, 0.75%)</title><rect x="661.3" y="117" width="8.8" height="15.0" fill="rgb(246,191,45)" rx="2" ry="2" />
+<text  x="664.30" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$std::basic_ostream&lt;char&gt;::flush() (3 samples, 0.07%)</title><rect x="13.9" y="149" width="0.8" height="15.0" fill="rgb(212,32,7)" rx="2" ry="2" />
+<text  x="16.86" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`rack_get_thread_index (1 samples, 0.02%)</title><rect x="381.9" y="53" width="0.3" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="384.94" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_free (3 samples, 0.07%)</title><rect x="1126.9" y="69" width="0.8" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="1129.91" y="79.5" ></text>
+</g>
+<g >
+<title>libc++abi`DYLD-STUB$$malloc_type_malloc (2 samples, 0.05%)</title><rect x="329.9" y="85" width="0.5" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="332.86" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`DYLD-STUB$$fflush (1 samples, 0.02%)</title><rect x="961.3" y="117" width="0.3" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="964.33" y="127.5" ></text>
+</g>
+<g >
+<title>libc++abi`operator.delete(void*) (1 samples, 0.02%)</title><rect x="1141.5" y="149" width="0.3" height="15.0" fill="rgb(246,192,45)" rx="2" ry="2" />
+<text  x="1144.51" y="159.5" ></text>
+</g>
+<g >
+<title>libc++abi`DYLD-STUB$$free (8 samples, 0.19%)</title><rect x="324.9" y="101" width="2.2" height="15.0" fill="rgb(246,191,45)" rx="2" ry="2" />
+<text  x="327.91" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_nanov2_free (641 samples, 14.97%)</title><rect x="707.9" y="117" width="176.6" height="15.0" fill="rgb(236,147,35)" rx="2" ry="2" />
+<text  x="710.86" y="127.5" >libsystem_malloc`_nano..</text>
+</g>
+<g >
+<title>libc++.1`std::num_put&lt;char,.std::ostreambuf_iterator&lt;char&gt;&gt;::__do_put_integral[abi:ne190102]&lt;long&gt;(std::ostreambuf_iterator&lt;char&gt;, (108 samples, 2.52%)</title><rect x="1098.5" y="133" width="29.8" height="15.0" fill="rgb(215,49,11)" rx="2" ry="2" />
+<text  x="1101.53" y="143.5" >li..</text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_list_remove_ptr (7 samples, 0.16%)</title><rect x="903.2" y="85" width="1.9" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="906.20" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__v2printf (1 samples, 0.02%)</title><rect x="1111.5" y="101" width="0.3" height="15.0" fill="rgb(238,152,36)" rx="2" ry="2" />
+<text  x="1114.48" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_free (19 samples, 0.44%)</title><rect x="405.4" y="101" width="5.2" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="408.35" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__swrite (1 samples, 0.02%)</title><rect x="963.3" y="85" width="0.2" height="15.0" fill="rgb(252,217,52)" rx="2" ry="2" />
+<text  x="966.26" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (59 samples, 1.38%)</title><rect x="920.3" y="101" width="16.2" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="923.28" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::__put_character_sequence[abi:ne190102]&lt;char&gt;(std::basic_ostream&lt;char&gt;&amp;,.char (3 samples, 0.07%)</title><rect x="1178.7" y="165" width="0.8" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
+<text  x="1181.70" y="175.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_lock (2 samples, 0.05%)</title><rect x="1093.3" y="101" width="0.5" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="1096.30" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_lock_slow (3 samples, 0.07%)</title><rect x="1089.7" y="85" width="0.8" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
+<text  x="1092.72" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__fread (3 samples, 0.07%)</title><rect x="1184.5" y="101" width="0.8" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="1187.49" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$__error (1 samples, 0.02%)</title><rect x="1106.8" y="69" width="0.3" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="1109.80" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$pthread_mutex_lock (2 samples, 0.05%)</title><rect x="1089.2" y="85" width="0.5" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="1092.16" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fwrite (1 samples, 0.02%)</title><rect x="1109.3" y="85" width="0.3" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="1112.28" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__stdoutbuf&lt;char&gt;::overflow(int) (1 samples, 0.02%)</title><rect x="1129.1" y="133" width="0.3" height="15.0" fill="rgb(218,62,14)" rx="2" ry="2" />
+<text  x="1132.11" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_kernel`__error (6 samples, 0.14%)</title><rect x="44.4" y="85" width="1.7" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="47.44" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$os_unfair_lock_lock (3 samples, 0.07%)</title><rect x="1125.0" y="53" width="0.8" height="15.0" fill="rgb(244,183,43)" rx="2" ry="2" />
+<text  x="1127.98" y="63.5" ></text>
+</g>
+<g >
+<title>lexer`std::__state&lt;char&gt;*.std::vector&lt;std::__state&lt;char&gt;&gt;::__push_back_slow_path&lt;std::__state&lt;char&gt;&gt;(std::__state&lt;char&gt;&amp;&amp;) (8 samples, 0.19%)</title><rect x="91.3" y="133" width="2.2" height="15.0" fill="rgb(233,131,31)" rx="2" ry="2" />
+<text  x="94.27" y="143.5" ></text>
+</g>
+<g >
+<title>Thread_5853690.DispatchQueue_1: (4,283 samples, 100.00%)</title><rect x="10.0" y="213" width="1180.0" height="15.0" fill="rgb(207,12,3)" rx="2" ry="2" />
+<text  x="13.00" y="223.5" >Thread_5853690.DispatchQueue_1:</text>
+</g>
+<g >
+<title>libsystem_malloc`free_tiny (62 samples, 1.45%)</title><rect x="891.1" y="117" width="17.1" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="894.07" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`malloc_type_malloc (39 samples, 0.91%)</title><rect x="501.2" y="85" width="10.8" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="504.23" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`DYLD-STUB$$_platform_bzero (3 samples, 0.07%)</title><rect x="1168.2" y="133" width="0.9" height="15.0" fill="rgb(242,170,40)" rx="2" ry="2" />
+<text  x="1171.23" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`std::__pad_and_output[abi:ne190102]&lt;char&gt;(std::ostreambuf_iterator&lt;char&gt;,.char (1 samples, 0.02%)</title><rect x="15.8" y="149" width="0.3" height="15.0" fill="rgb(234,137,32)" rx="2" ry="2" />
+<text  x="18.79" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`snprintf_l (1 samples, 0.02%)</title><rect x="1128.3" y="133" width="0.3" height="15.0" fill="rgb(235,142,34)" rx="2" ry="2" />
+<text  x="1131.29" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memset (10 samples, 0.23%)</title><rect x="1175.4" y="133" width="2.8" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="1178.40" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`analyzeLine(std::basic_string&lt;char&gt;.const&amp;, (1 samples, 0.02%)</title><rect x="10.0" y="181" width="0.3" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="13.00" y="191.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$operator.new(unsigned (10 samples, 0.23%)</title><rect x="491.0" y="101" width="2.8" height="15.0" fill="rgb(216,53,12)" rx="2" ry="2" />
+<text  x="494.04" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_nanov2_free (113 samples, 2.64%)</title><rect x="1147.0" y="149" width="31.2" height="15.0" fill="rgb(236,147,35)" rx="2" ry="2" />
+<text  x="1150.02" y="159.5" >li..</text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (2 samples, 0.05%)</title><rect x="957.7" y="133" width="0.6" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="960.75" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$operator.delete(void*) (24 samples, 0.56%)</title><rect x="166.2" y="117" width="6.6" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="169.21" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fflush (1 samples, 0.02%)</title><rect x="1094.9" y="133" width="0.3" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
+<text  x="1097.95" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_nanov2_free (3 samples, 0.07%)</title><rect x="1189.2" y="165" width="0.8" height="15.0" fill="rgb(236,147,35)" rx="2" ry="2" />
+<text  x="1192.17" y="175.5" ></text>
+</g>
+<g >
+<title>lexer`std::__repeat_one_loop&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (2 samples, 0.05%)</title><rect x="252.2" y="117" width="0.5" height="15.0" fill="rgb(228,108,25)" rx="2" ry="2" />
+<text  x="255.17" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_list_add_ptr (1 samples, 0.02%)</title><rect x="392.1" y="53" width="0.3" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="395.13" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`__bzero (2 samples, 0.05%)</title><rect x="640.1" y="101" width="0.5" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="643.09" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (36 samples, 0.84%)</title><rect x="30.9" y="101" width="10.0" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="33.94" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$__error (10 samples, 0.23%)</title><rect x="40.9" y="85" width="2.7" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="43.86" y="95.5" ></text>
+</g>
+<g >
+<title>libc++abi`DYLD-STUB$$free (12 samples, 0.28%)</title><rect x="1138.2" y="149" width="3.3" height="15.0" fill="rgb(246,191,45)" rx="2" ry="2" />
+<text  x="1141.20" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_unlock_slow (3 samples, 0.07%)</title><rect x="1092.2" y="85" width="0.8" height="15.0" fill="rgb(239,156,37)" rx="2" ry="2" />
+<text  x="1095.19" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_unlock_slow (2 samples, 0.05%)</title><rect x="1109.6" y="85" width="0.5" height="15.0" fill="rgb(239,156,37)" rx="2" ry="2" />
+<text  x="1112.55" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`get_tiny_previous_free_msize (4 samples, 0.09%)</title><rect x="899.6" y="85" width="1.1" height="15.0" fill="rgb(238,152,36)" rx="2" ry="2" />
+<text  x="902.61" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (5 samples, 0.12%)</title><rect x="956.4" y="101" width="1.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="959.37" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$pthread_mutex_unlock (1 samples, 0.02%)</title><rect x="1107.1" y="69" width="0.2" height="15.0" fill="rgb(221,73,17)" rx="2" ry="2" />
+<text  x="1110.07" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`malloc_type_malloc (2 samples, 0.05%)</title><rect x="955.8" y="101" width="0.6" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="958.82" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$std::basic_string&lt;char&gt;::push_back(char) (1 samples, 0.02%)</title><rect x="1183.7" y="149" width="0.2" height="15.0" fill="rgb(212,34,8)" rx="2" ry="2" />
+<text  x="1186.66" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (1 samples, 0.02%)</title><rect x="1103.2" y="69" width="0.3" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1106.22" y="79.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_string&lt;char&gt;::push_back(char) (2 samples, 0.05%)</title><rect x="1185.6" y="149" width="0.5" height="15.0" fill="rgb(213,38,9)" rx="2" ry="2" />
+<text  x="1188.59" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`flockfile (46 samples, 1.07%)</title><rect x="40.9" y="101" width="12.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="43.86" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`small_free_list_remove_ptr (1 samples, 0.02%)</title><rect x="382.2" y="53" width="0.3" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="385.21" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_malloc_should_clear (79 samples, 1.84%)</title><rect x="383.6" y="69" width="21.8" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="386.59" y="79.5" >l..</text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::sentry::~sentry() (7 samples, 0.16%)</title><rect x="79.2" y="133" width="1.9" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="82.15" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`szone_malloc_should_clear (1 samples, 0.02%)</title><rect x="473.4" y="101" width="0.3" height="15.0" fill="rgb(245,188,45)" rx="2" ry="2" />
+<text  x="476.40" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::__alternate&lt;char&gt;::__exec_split(bool,.std::__state&lt;char&gt;&amp;) (18 samples, 0.42%)</title><rect x="180.5" y="117" width="5.0" height="15.0" fill="rgb(235,140,33)" rx="2" ry="2" />
+<text  x="183.54" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_lock (3 samples, 0.07%)</title><rect x="52.7" y="85" width="0.8" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="55.70" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__stdoutbuf&lt;char&gt;::sync() (486 samples, 11.35%)</title><rect x="960.5" y="133" width="133.9" height="15.0" fill="rgb(242,173,41)" rx="2" ry="2" />
+<text  x="963.50" y="143.5" >libc++.1`std::__..</text>
+</g>
+<g >
+<title>libc++.1`std::ostreambuf_iterator&lt;char&gt;::operator=[abi:ne190102](char) (2 samples, 0.05%)</title><rect x="1137.7" y="149" width="0.5" height="15.0" fill="rgb(230,117,28)" rx="2" ry="2" />
+<text  x="1140.65" y="159.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::locale(std::locale.const&amp;) (2 samples, 0.05%)</title><rect x="1110.9" y="117" width="0.6" height="15.0" fill="rgb(232,128,30)" rx="2" ry="2" />
+<text  x="1113.93" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_lock_slow (2 samples, 0.05%)</title><rect x="72.5" y="101" width="0.6" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
+<text  x="75.54" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::basic_regex&lt;char,.std::regex_traits&lt;char&gt;&gt;::__match_at_start_ecma&lt;std::allocator&lt;std::sub_match&lt;char (2,947 samples, 68.81%)</title><rect x="97.9" y="133" width="811.9" height="15.0" fill="rgb(233,131,31)" rx="2" ry="2" />
+<text  x="100.89" y="143.5" >lexer`std::basic_regex&lt;char,.std::regex_traits&lt;char&gt;&gt;::__match_at_start_ecma&lt;std::allocator&lt;std::sub_match&lt;char</text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$operator.delete(void*) (3 samples, 0.07%)</title><rect x="13.0" y="149" width="0.9" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="16.03" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_szone_free (19 samples, 0.44%)</title><rect x="884.5" y="117" width="5.2" height="15.0" fill="rgb(226,96,23)" rx="2" ry="2" />
+<text  x="887.46" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`std::__bracket_expression&lt;char,.std::regex_traits&lt;char&gt;&gt;::__exec(std::__state&lt;char&gt;&amp;) (90 samples, 2.10%)</title><rect x="187.2" y="117" width="24.7" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="190.15" y="127.5" >l..</text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memcmp (21 samples, 0.49%)</title><rect x="206.2" y="101" width="5.7" height="15.0" fill="rgb(214,45,10)" rx="2" ry="2" />
+<text  x="209.16" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_list_add_ptr (9 samples, 0.21%)</title><rect x="900.7" y="85" width="2.5" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="903.72" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$operator.new(unsigned (4 samples, 0.09%)</title><rect x="278.1" y="101" width="1.1" height="15.0" fill="rgb(216,53,12)" rx="2" ry="2" />
+<text  x="281.07" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`snprintf_l (61 samples, 1.42%)</title><rect x="1111.5" y="117" width="16.8" height="15.0" fill="rgb(235,142,34)" rx="2" ry="2" />
+<text  x="1114.48" y="127.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::id::__get() (3 samples, 0.07%)</title><rect x="1097.2" y="117" width="0.8" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1100.15" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (5 samples, 0.12%)</title><rect x="32.6" y="85" width="1.4" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="35.59" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__stdoutbuf&lt;char&gt;::xsputn(char.const*, (6 samples, 0.14%)</title><rect x="75.8" y="133" width="1.7" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="78.85" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_c`funlockfile (55 samples, 1.28%)</title><rect x="53.5" y="101" width="15.2" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="56.53" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_unlock_init_slow (1 samples, 0.02%)</title><rect x="1135.4" y="85" width="0.3" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="1138.45" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fwrite (14 samples, 0.33%)</title><rect x="68.7" y="101" width="3.8" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="71.68" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_list_add_ptr (9 samples, 0.21%)</title><rect x="402.9" y="37" width="2.5" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="405.87" y="47.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_tiny_check_and_zero_inline_meta_from_freelist (5 samples, 0.12%)</title><rect x="401.5" y="37" width="1.4" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
+<text  x="404.50" y="47.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::put(char) (2 samples, 0.05%)</title><rect x="1187.5" y="165" width="0.6" height="15.0" fill="rgb(236,146,35)" rx="2" ry="2" />
+<text  x="1190.52" y="175.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_unlock (2 samples, 0.05%)</title><rect x="1110.1" y="85" width="0.6" height="15.0" fill="rgb(208,17,4)" rx="2" ry="2" />
+<text  x="1113.10" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$__error (2 samples, 0.05%)</title><rect x="1131.0" y="69" width="0.6" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="1134.04" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memmove (1 samples, 0.02%)</title><rect x="660.7" y="101" width="0.3" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+<text  x="663.75" y="111.5" ></text>
+</g>
+<g >
+<title>libc++abi`DYLD-STUB$$malloc_type_malloc (2 samples, 0.05%)</title><rect x="620.5" y="85" width="0.6" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="623.53" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::ctype&lt;char&gt;::do_tolower(char).const (5 samples, 0.12%)</title><rect x="250.8" y="101" width="1.4" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="253.79" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::__match_char_icase&lt;char,.std::regex_traits&lt;char&gt;&gt;::__exec(std::__state&lt;char&gt;&amp;) (88 samples, 2.05%)</title><rect x="227.9" y="117" width="24.3" height="15.0" fill="rgb(245,187,44)" rx="2" ry="2" />
+<text  x="230.93" y="127.5" >l..</text>
+</g>
+<g >
+<title>lexer`std::__word_boundary&lt;char,.std::regex_traits&lt;char&gt;&gt;::__exec(std::__state&lt;char&gt;&amp;) (40 samples, 0.93%)</title><rect x="596.0" y="117" width="11.0" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="599.01" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::pair&lt;unsigned.long, (3 samples, 0.07%)</title><rect x="909.8" y="133" width="0.8" height="15.0" fill="rgb(222,82,19)" rx="2" ry="2" />
+<text  x="912.81" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memset (31 samples, 0.72%)</title><rect x="875.9" y="101" width="8.6" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="878.92" y="111.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_istream&lt;char&gt;::sentry::sentry(std::basic_istream&lt;char&gt;&amp;,.bool) (2 samples, 0.05%)</title><rect x="1183.9" y="149" width="0.6" height="15.0" fill="rgb(216,54,12)" rx="2" ry="2" />
+<text  x="1186.94" y="159.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$operator.delete(void*) (5 samples, 0.12%)</title><rect x="276.7" y="101" width="1.4" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="279.69" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memset (5 samples, 0.12%)</title><rect x="74.5" y="117" width="1.3" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="77.47" y="127.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::~locale() (2 samples, 0.05%)</title><rect x="1136.8" y="149" width="0.6" height="15.0" fill="rgb(239,158,38)" rx="2" ry="2" />
+<text  x="1139.83" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$write$NOCANCEL (1 samples, 0.02%)</title><rect x="963.8" y="53" width="0.3" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="966.81" y="63.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::locale(std::locale.const&amp;) (2 samples, 0.05%)</title><rect x="1096.6" y="133" width="0.6" height="15.0" fill="rgb(232,128,30)" rx="2" ry="2" />
+<text  x="1099.60" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::sub_match&lt;char.const*&gt;&gt;::assign(unsigned (93 samples, 2.17%)</title><rect x="911.7" y="133" width="25.7" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="914.74" y="143.5" >l..</text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_lock (1 samples, 0.02%)</title><rect x="1133.5" y="69" width="0.3" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="1136.52" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sflush (459 samples, 10.72%)</title><rect x="962.4" y="101" width="126.5" height="15.0" fill="rgb(210,25,5)" rx="2" ry="2" />
+<text  x="965.43" y="111.5" >libsystem_c`__s..</text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_malloc_from_free_list (1 samples, 0.02%)</title><rect x="383.3" y="69" width="0.3" height="15.0" fill="rgb(222,80,19)" rx="2" ry="2" />
+<text  x="386.31" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (138 samples, 3.22%)</title><rect x="338.7" y="85" width="38.0" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="341.68" y="95.5" >lib..</text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::pair&lt;unsigned.long, (114 samples, 2.66%)</title><rect x="614.2" y="117" width="31.4" height="15.0" fill="rgb(222,82,19)" rx="2" ry="2" />
+<text  x="617.19" y="127.5" >le..</text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memset (8 samples, 0.19%)</title><rect x="643.4" y="101" width="2.2" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="646.39" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (7 samples, 0.16%)</title><rect x="1102.9" y="85" width="2.0" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1105.94" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__stdoutbuf&lt;char&gt;::xsputn(char.const*, (1 samples, 0.02%)</title><rect x="1110.7" y="117" width="0.2" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="1113.65" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memmove (74 samples, 1.73%)</title><rect x="575.6" y="101" width="20.4" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+<text  x="578.62" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`flockfile (4 samples, 0.09%)</title><rect x="24.1" y="117" width="1.1" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="27.05" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_no_lock (21 samples, 0.49%)</title><rect x="460.7" y="85" width="5.8" height="15.0" fill="rgb(230,117,27)" rx="2" ry="2" />
+<text  x="463.73" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$std::basic_ostream&lt;char&gt;::sentry::sentry(std::basic_ostream&lt;char&gt;&amp;) (1 samples, 0.02%)</title><rect x="16.3" y="133" width="0.3" height="15.0" fill="rgb(234,136,32)" rx="2" ry="2" />
+<text  x="19.34" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`std::__put_character_sequence[abi:ne190102]&lt;char&gt;(std::basic_ostream&lt;char&gt;&amp;,.char (240 samples, 5.60%)</title><rect x="16.1" y="149" width="66.1" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
+<text  x="19.06" y="159.5" >lexer`s..</text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_lock_init_slow (9 samples, 0.21%)</title><rect x="50.2" y="85" width="2.5" height="15.0" fill="rgb(241,167,40)" rx="2" ry="2" />
+<text  x="53.22" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$__error (1 samples, 0.02%)</title><rect x="1185.3" y="85" width="0.3" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="1188.32" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::operator&lt;&lt;(int) (1 samples, 0.02%)</title><rect x="1187.2" y="165" width="0.3" height="15.0" fill="rgb(217,58,13)" rx="2" ry="2" />
+<text  x="1190.24" y="175.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memset (13 samples, 0.30%)</title><rect x="466.5" y="85" width="3.6" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="469.52" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`std::match_results&lt;std::__wrap_iter&lt;char.const*&gt;&gt;::__assign[abi:ne190102]&lt;char (45 samples, 1.05%)</title><rect x="945.9" y="149" width="12.4" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="948.90" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`_swrite (455 samples, 10.62%)</title><rect x="963.5" y="85" width="125.4" height="15.0" fill="rgb(215,50,12)" rx="2" ry="2" />
+<text  x="966.53" y="95.5" >libsystem_c`_sw..</text>
+</g>
+<g >
+<title>libsystem_malloc`small_free_list_add_ptr (3 samples, 0.07%)</title><rect x="890.2" y="101" width="0.9" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="893.25" y="111.5" ></text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (284 samples, 6.63%)</title><rect x="327.1" y="101" width="78.3" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="330.11" y="111.5" >libc++abi..</text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (220 samples, 5.14%)</title><rect x="512.0" y="85" width="60.6" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="514.98" y="95.5" >libsys..</text>
+</g>
+<g >
+<title>libc++.1`DYLD-STUB$$snprintf_l (1 samples, 0.02%)</title><rect x="1098.8" y="117" width="0.3" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="1101.81" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_free (19 samples, 0.44%)</title><rect x="1141.8" y="149" width="5.2" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="1144.79" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_unlock_slow (26 samples, 0.61%)</title><rect x="58.8" y="85" width="7.1" height="15.0" fill="rgb(239,156,37)" rx="2" ry="2" />
+<text  x="61.76" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_no_lock (2 samples, 0.05%)</title><rect x="473.7" y="101" width="0.5" height="15.0" fill="rgb(230,117,27)" rx="2" ry="2" />
+<text  x="476.68" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (6 samples, 0.14%)</title><rect x="638.4" y="101" width="1.7" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="641.43" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::basic_regex&lt;char,.std::regex_traits&lt;char&gt;&gt;::__match_at_start_ecma&lt;std::allocator&lt;std::sub_match&lt;char (7 samples, 0.16%)</title><rect x="82.2" y="149" width="1.9" height="15.0" fill="rgb(233,131,31)" rx="2" ry="2" />
+<text  x="85.18" y="159.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$operator.new(unsigned (1 samples, 0.02%)</title><rect x="955.5" y="117" width="0.3" height="15.0" fill="rgb(216,53,12)" rx="2" ry="2" />
+<text  x="958.54" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sread (3 samples, 0.07%)</title><rect x="1184.5" y="53" width="0.8" height="15.0" fill="rgb(226,96,23)" rx="2" ry="2" />
+<text  x="1187.49" y="63.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::num_put&lt;char,.std::ostreambuf_iterator&lt;char&gt;&gt;::__do_put_integral[abi:ne190102]&lt;long&gt;(std::ostreambuf_iterator&lt;char&gt;, (1 samples, 0.02%)</title><rect x="1137.4" y="149" width="0.3" height="15.0" fill="rgb(215,49,11)" rx="2" ry="2" />
+<text  x="1140.38" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__vfprintf (3 samples, 0.07%)</title><rect x="1123.9" y="69" width="0.8" height="15.0" fill="rgb(252,217,51)" rx="2" ry="2" />
+<text  x="1126.88" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`malloc_type_malloc (8 samples, 0.19%)</title><rect x="649.2" y="85" width="2.2" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="652.18" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`std::__match_char_icase&lt;char,.std::regex_traits&lt;char&gt;&gt;::__exec(std::__state&lt;char&gt;&amp;) (9 samples, 0.21%)</title><rect x="88.8" y="133" width="2.5" height="15.0" fill="rgb(245,187,44)" rx="2" ry="2" />
+<text  x="91.80" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`__bzero (165 samples, 3.85%)</title><rect x="830.5" y="101" width="45.4" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="833.46" y="111.5" >libs..</text>
+</g>
+<g >
+<title>libsystem_malloc`_nanov2_free (26 samples, 0.61%)</title><rect x="937.6" y="133" width="7.2" height="15.0" fill="rgb(236,147,35)" rx="2" ry="2" />
+<text  x="940.63" y="143.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::operator&lt;&lt;(int) (121 samples, 2.83%)</title><rect x="1095.2" y="149" width="33.4" height="15.0" fill="rgb(217,58,13)" rx="2" ry="2" />
+<text  x="1098.23" y="159.5" >li..</text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (33 samples, 0.77%)</title><rect x="651.4" y="85" width="9.1" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="654.38" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`std::__empty_non_own_state&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (1 samples, 0.02%)</title><rect x="211.9" y="117" width="0.3" height="15.0" fill="rgb(224,90,21)" rx="2" ry="2" />
+<text  x="214.95" y="127.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::sentry::sentry(std::basic_ostream&lt;char&gt;&amp;) (6 samples, 0.14%)</title><rect x="77.5" y="133" width="1.7" height="15.0" fill="rgb(235,140,33)" rx="2" ry="2" />
+<text  x="80.50" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_unlock_init_slow (1 samples, 0.02%)</title><rect x="1134.6" y="69" width="0.3" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="1137.62" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memmove (2 samples, 0.05%)</title><rect x="1178.2" y="149" width="0.5" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+<text  x="1181.15" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`malloc_type_malloc (8 samples, 0.19%)</title><rect x="918.1" y="101" width="2.2" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="921.07" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$__error (2 samples, 0.05%)</title><rect x="53.5" y="85" width="0.6" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="56.53" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fflush (478 samples, 11.16%)</title><rect x="962.2" y="117" width="131.6" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
+<text  x="965.16" y="127.5" >libsystem_c`fflush</text>
+</g>
+<g >
+<title>lexer`std::__bracket_expression&lt;char,.std::regex_traits&lt;char&gt;&gt;::__exec(std::__state&lt;char&gt;&amp;) (10 samples, 0.23%)</title><rect x="86.0" y="133" width="2.8" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="89.04" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::__state&lt;char&gt;&gt;::__swap_out_circular_buffer(std::__split_buffer&lt;std::__state&lt;char&gt;&amp;&gt;&amp;) (26 samples, 0.61%)</title><rect x="607.0" y="117" width="7.2" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="610.03" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_unlock (2 samples, 0.05%)</title><rect x="68.1" y="85" width="0.6" height="15.0" fill="rgb(208,17,4)" rx="2" ry="2" />
+<text  x="71.13" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::sentry::~sentry() (1 samples, 0.02%)</title><rect x="1136.0" y="149" width="0.3" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="1139.00" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`free_tiny (51 samples, 1.19%)</title><rect x="456.0" y="101" width="14.1" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="459.05" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::__match_char&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (16 samples, 0.37%)</title><rect x="223.5" y="117" width="4.4" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="226.52" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_szone_free (17 samples, 0.40%)</title><rect x="451.4" y="101" width="4.6" height="15.0" fill="rgb(226,96,23)" rx="2" ry="2" />
+<text  x="454.36" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`flockfile (10 samples, 0.23%)</title><rect x="1088.9" y="101" width="2.7" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1091.89" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_lock_init_slow (1 samples, 0.02%)</title><rect x="1133.2" y="69" width="0.3" height="15.0" fill="rgb(241,167,40)" rx="2" ry="2" />
+<text  x="1136.25" y="79.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$std::basic_ostream&lt;char&gt;::operator&lt;&lt;(int) (1 samples, 0.02%)</title><rect x="14.7" y="149" width="0.3" height="15.0" fill="rgb(216,54,13)" rx="2" ry="2" />
+<text  x="17.68" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`flockfile (10 samples, 0.23%)</title><rect x="1131.0" y="85" width="2.8" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1134.04" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (1 samples, 0.02%)</title><rect x="1130.8" y="85" width="0.2" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1133.77" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (6 samples, 0.14%)</title><rect x="1119.2" y="69" width="1.6" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1122.19" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_c`localeconv_l (8 samples, 0.19%)</title><rect x="1124.7" y="69" width="2.2" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="1127.70" y="79.5" ></text>
+</g>
+<g >
+<title>lexer`std::__end_marked_subexpression&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (4 samples, 0.09%)</title><rect x="217.2" y="117" width="1.1" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="220.18" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`rack_get_thread_index (7 samples, 0.16%)</title><rect x="390.2" y="53" width="1.9" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="393.20" y="63.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$std::basic_ostream&lt;char&gt;::put(char) (2 samples, 0.05%)</title><rect x="15.0" y="149" width="0.5" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="17.96" y="159.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__match_any_but_newline&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (1 samples, 0.02%)</title><rect x="661.0" y="117" width="0.3" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
+<text  x="664.02" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::sub_match&lt;char.const*&gt;&gt;::assign(unsigned (6 samples, 0.14%)</title><rect x="958.3" y="149" width="1.7" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="961.30" y="159.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::put(char) (27 samples, 0.63%)</title><rect x="1128.6" y="149" width="7.4" height="15.0" fill="rgb(236,146,35)" rx="2" ry="2" />
+<text  x="1131.56" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$pthread_mutex_unlock (6 samples, 0.14%)</title><rect x="54.1" y="85" width="1.6" height="15.0" fill="rgb(221,73,17)" rx="2" ry="2" />
+<text  x="57.08" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fwrite (28 samples, 0.65%)</title><rect x="1102.9" y="101" width="7.8" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="1105.94" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memset (11 samples, 0.26%)</title><rect x="905.1" y="101" width="3.1" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="908.12" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::vector&lt;std::sub_match&lt;std::__wrap_iter&lt;char.const*&gt;&gt;&gt;::__append(unsigned (14 samples, 0.33%)</title><rect x="953.9" y="133" width="3.8" height="15.0" fill="rgb(213,38,9)" rx="2" ry="2" />
+<text  x="956.89" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_c`funlockfile (9 samples, 0.21%)</title><rect x="1106.8" y="85" width="2.5" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="1109.80" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`DYLD-STUB$$fwrite (3 samples, 0.07%)</title><rect x="22.4" y="117" width="0.8" height="15.0" fill="rgb(226,101,24)" rx="2" ry="2" />
+<text  x="25.40" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`small_malloc_from_free_list (3 samples, 0.07%)</title><rect x="382.5" y="53" width="0.8" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="385.49" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memmove (25 samples, 0.58%)</title><rect x="34.0" y="85" width="6.9" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+<text  x="36.97" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`analyzeLine(std::basic_string&lt;char&gt;.const&amp;, (4,241 samples, 99.02%)</title><rect x="10.3" y="165" width="1168.4" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="13.28" y="175.5" >lexer`analyzeLine(std::basic_string&lt;char&gt;.const&amp;,</text>
+</g>
+<g >
+<title>libsystem_c`__swrite (454 samples, 10.60%)</title><rect x="963.8" y="69" width="125.1" height="15.0" fill="rgb(252,217,52)" rx="2" ry="2" />
+<text  x="966.81" y="79.5" >libsystem_c`__s..</text>
+</g>
+<g >
+<title>lexer`std::__loop&lt;char&gt;::__exec_split(bool,.std::__state&lt;char&gt;&amp;) (6 samples, 0.14%)</title><rect x="221.9" y="117" width="1.6" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
+<text  x="224.87" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_kernel`__error (11 samples, 0.26%)</title><rect x="55.7" y="85" width="3.1" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="58.73" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_kernel`__error (2 samples, 0.05%)</title><rect x="1107.3" y="69" width="0.6" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="1110.35" y="79.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_string&lt;char&gt;::push_back(char) (3 samples, 0.07%)</title><rect x="1188.1" y="165" width="0.8" height="15.0" fill="rgb(213,38,9)" rx="2" ry="2" />
+<text  x="1191.07" y="175.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_list_remove_ptr (1 samples, 0.02%)</title><rect x="896.3" y="101" width="0.3" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="899.31" y="111.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::sentry::~sentry() (1 samples, 0.02%)</title><rect x="1129.4" y="133" width="0.3" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="1132.39" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_unlock (3 samples, 0.07%)</title><rect x="73.6" y="101" width="0.9" height="15.0" fill="rgb(208,17,4)" rx="2" ry="2" />
+<text  x="76.64" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`DYLD-STUB$$_platform_bzero (2 samples, 0.05%)</title><rect x="440.9" y="85" width="0.5" height="15.0" fill="rgb(242,170,40)" rx="2" ry="2" />
+<text  x="443.89" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fwrite (176 samples, 4.11%)</title><rect x="26.0" y="117" width="48.5" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="28.98" y="127.5" >libs..</text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (3 samples, 0.07%)</title><rect x="1123.9" y="53" width="0.8" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1126.88" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_unlock_init_slow (8 samples, 0.19%)</title><rect x="65.9" y="85" width="2.2" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="68.93" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::sentry::~sentry() (2 samples, 0.05%)</title><rect x="1094.4" y="133" width="0.5" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="1097.40" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (11 samples, 0.26%)</title><rect x="572.6" y="101" width="3.0" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="575.59" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`fread (4 samples, 0.09%)</title><rect x="1184.5" y="117" width="1.1" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="1187.49" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`szone_malloc_should_clear (104 samples, 2.43%)</title><rect x="376.7" y="85" width="28.7" height="15.0" fill="rgb(245,188,45)" rx="2" ry="2" />
+<text  x="379.70" y="95.5" >li..</text>
+</g>
+<g >
+<title>libsystem_c`funlockfile (6 samples, 0.14%)</title><rect x="1091.6" y="101" width="1.7" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="1094.64" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memmove (10 samples, 0.23%)</title><rect x="640.6" y="101" width="2.8" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+<text  x="643.64" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`free_small (5 samples, 0.12%)</title><rect x="889.7" y="117" width="1.4" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
+<text  x="892.70" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`main (4,282 samples, 99.98%)</title><rect x="10.3" y="181" width="1179.7" height="15.0" fill="rgb(209,21,5)" rx="2" ry="2" />
+<text  x="13.28" y="191.5" >lexer`main</text>
+</g>
+<g >
+<title>libsystem_c`fwrite (20 samples, 0.47%)</title><rect x="1130.5" y="101" width="5.5" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="1133.49" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`__bzero (23 samples, 0.54%)</title><rect x="1169.1" y="133" width="6.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="1172.06" y="143.5" ></text>
+</g>
+<g >
+<title>libc++abi`DYLD-STUB$$malloc_type_malloc (2 samples, 0.05%)</title><rect x="648.6" y="85" width="0.6" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="651.63" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$operator.new(unsigned (1 samples, 0.02%)</title><rect x="647.8" y="101" width="0.3" height="15.0" fill="rgb(216,53,12)" rx="2" ry="2" />
+<text  x="650.80" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_no_lock (6 samples, 0.14%)</title><rect x="908.2" y="117" width="1.6" height="15.0" fill="rgb(230,117,27)" rx="2" ry="2" />
+<text  x="911.16" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_list_add_ptr (6 samples, 0.14%)</title><rect x="464.3" y="69" width="1.7" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="467.31" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_c`_vsnprintf (60 samples, 1.40%)</title><rect x="1111.8" y="101" width="16.5" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="1114.76" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_lock_slow (5 samples, 0.12%)</title><rect x="1131.9" y="69" width="1.3" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
+<text  x="1134.87" y="79.5" ></text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (66 samples, 1.54%)</title><rect x="620.2" y="101" width="18.2" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="623.25" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_unlock_slow (1 samples, 0.02%)</title><rect x="73.1" y="101" width="0.3" height="15.0" fill="rgb(239,156,37)" rx="2" ry="2" />
+<text  x="76.09" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$free (1 samples, 0.02%)</title><rect x="1118.9" y="69" width="0.3" height="15.0" fill="rgb(253,221,52)" rx="2" ry="2" />
+<text  x="1121.92" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (1 samples, 0.02%)</title><rect x="660.5" y="101" width="0.2" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="663.47" y="111.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::~locale() (2 samples, 0.05%)</title><rect x="1098.0" y="133" width="0.5" height="15.0" fill="rgb(239,158,38)" rx="2" ry="2" />
+<text  x="1100.98" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$operator.new(unsigned (1 samples, 0.02%)</title><rect x="620.0" y="101" width="0.2" height="15.0" fill="rgb(216,53,12)" rx="2" ry="2" />
+<text  x="622.97" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_kernel`__read_nocancel (3 samples, 0.07%)</title><rect x="1184.5" y="37" width="0.8" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="1187.49" y="47.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_lock_init_slow (2 samples, 0.05%)</title><rect x="1106.0" y="69" width="0.5" height="15.0" fill="rgb(241,167,40)" rx="2" ry="2" />
+<text  x="1108.97" y="79.5" ></text>
+</g>
+<g >
+<title>dyld`start (4,283 samples, 100.00%)</title><rect x="10.0" y="197" width="1180.0" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="13.00" y="207.5" >dyld`start</text>
+</g>
+<g >
+<title>all (4,283 samples, 100%)</title><rect x="10.0" y="229" width="1180.0" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="13.00" y="239.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_malloc_from_free_list (47 samples, 1.10%)</title><rect x="392.4" y="53" width="13.0" height="15.0" fill="rgb(222,80,19)" rx="2" ry="2" />
+<text  x="395.40" y="63.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_allocate_outlined (1 samples, 0.02%)</title><rect x="638.2" y="69" width="0.2" height="15.0" fill="rgb(223,83,19)" rx="2" ry="2" />
+<text  x="641.16" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_kernel`__write_nocancel (453 samples, 10.58%)</title><rect x="964.1" y="53" width="124.8" height="15.0" fill="rgb(236,143,34)" rx="2" ry="2" />
+<text  x="967.08" y="63.5" >libsystem_kerne..</text>
+</g>
+<g >
+<title>libc++.1`std::locale::use_facet(std::locale::id&amp;).const (3 samples, 0.07%)</title><rect x="1097.2" y="133" width="0.8" height="15.0" fill="rgb(248,200,47)" rx="2" ry="2" />
+<text  x="1100.15" y="143.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_ostream&lt;char&gt;::flush() (491 samples, 11.46%)</title><rect x="960.0" y="149" width="135.2" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
+<text  x="962.95" y="159.5" >libc++.1`std::bas..</text>
+</g>
+<g >
+<title>libsystem_malloc`DYLD-STUB$$_platform_memset (1 samples, 0.02%)</title><rect x="459.1" y="85" width="0.3" height="15.0" fill="rgb(213,40,9)" rx="2" ry="2" />
+<text  x="462.08" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__srefill1 (3 samples, 0.07%)</title><rect x="1184.5" y="85" width="0.8" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="1187.49" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`DYLD-STUB$$_platform_bzero (7 samples, 0.16%)</title><rect x="828.5" y="101" width="2.0" height="15.0" fill="rgb(242,170,40)" rx="2" ry="2" />
+<text  x="831.53" y="111.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::basic_filebuf&lt;char&gt;::underflow() (4 samples, 0.09%)</title><rect x="1184.5" y="133" width="1.1" height="15.0" fill="rgb(240,161,38)" rx="2" ry="2" />
+<text  x="1187.49" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_c`DYLD-STUB$$__error (1 samples, 0.02%)</title><rect x="1091.9" y="85" width="0.3" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="1094.92" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`free_tiny (2 samples, 0.05%)</title><rect x="945.3" y="133" width="0.6" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="948.35" y="143.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (14 samples, 0.33%)</title><rect x="68.7" y="85" width="3.8" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="71.68" y="95.5" ></text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (7 samples, 0.16%)</title><rect x="955.8" y="117" width="1.9" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="958.82" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_lock_slow (2 samples, 0.05%)</title><rect x="1105.4" y="69" width="0.6" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
+<text  x="1108.42" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_list_add_ptr (5 samples, 0.12%)</title><rect x="459.4" y="85" width="1.3" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="462.35" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__stdoutbuf&lt;char&gt;::overflow(int) (20 samples, 0.47%)</title><rect x="1130.5" y="117" width="5.5" height="15.0" fill="rgb(218,62,14)" rx="2" ry="2" />
+<text  x="1133.49" y="127.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::locale::use_facet(std::locale::id&amp;).const (1 samples, 0.02%)</title><rect x="1136.6" y="149" width="0.2" height="15.0" fill="rgb(248,200,47)" rx="2" ry="2" />
+<text  x="1139.55" y="159.5" ></text>
+</g>
+<g >
+<title>libsystem_c`flockfile (1 samples, 0.02%)</title><rect x="1093.8" y="117" width="0.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1096.85" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`nanov2_malloc_type (54 samples, 1.26%)</title><rect x="623.6" y="85" width="14.8" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="626.56" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`_nanov2_free (148 samples, 3.46%)</title><rect x="410.6" y="101" width="40.8" height="15.0" fill="rgb(236,147,35)" rx="2" ry="2" />
+<text  x="413.59" y="111.5" >lib..</text>
+</g>
+<g >
+<title>libsystem_c`__sfvwrite (1 samples, 0.02%)</title><rect x="1134.9" y="69" width="0.3" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1137.90" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_c`flockfile (7 samples, 0.16%)</title><rect x="1104.9" y="85" width="1.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1107.87" y="95.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__vfprintf (51 samples, 1.19%)</title><rect x="1113.7" y="85" width="14.0" height="15.0" fill="rgb(252,217,51)" rx="2" ry="2" />
+<text  x="1116.68" y="95.5" ></text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (286 samples, 6.68%)</title><rect x="493.8" y="101" width="78.8" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="496.79" y="111.5" >libc++abi..</text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (14 samples, 0.33%)</title><rect x="670.1" y="117" width="3.9" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="673.12" y="127.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__num_put_base::__identify_padding(char*,.char*, (1 samples, 0.02%)</title><rect x="1101.8" y="117" width="0.3" height="15.0" fill="rgb(221,75,18)" rx="2" ry="2" />
+<text  x="1104.84" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`_pthread_mutex_firstfit_unlock_slow (4 samples, 0.09%)</title><rect x="1107.9" y="69" width="1.1" height="15.0" fill="rgb(239,156,37)" rx="2" ry="2" />
+<text  x="1110.90" y="79.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$memcpy (3 samples, 0.07%)</title><rect x="647.0" y="101" width="0.8" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="649.97" y="111.5" ></text>
+</g>
+<g >
+<title>lexer`std::__begin_marked_subexpression&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (6 samples, 0.14%)</title><rect x="185.5" y="117" width="1.7" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="188.50" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__ultoa (11 samples, 0.26%)</title><rect x="1120.8" y="69" width="3.1" height="15.0" fill="rgb(233,133,31)" rx="2" ry="2" />
+<text  x="1123.85" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`small_malloc_should_clear (10 samples, 0.23%)</title><rect x="380.6" y="69" width="2.7" height="15.0" fill="rgb(238,152,36)" rx="2" ry="2" />
+<text  x="383.56" y="79.5" ></text>
+</g>
+<g >
+<title>libsystem_platform`_platform_memmove (5 samples, 0.12%)</title><rect x="1103.5" y="69" width="1.4" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+<text  x="1106.49" y="79.5" ></text>
+</g>
+<g >
+<title>lexer`std::__pad_and_output[abi:ne190102]&lt;char&gt;(std::ostreambuf_iterator&lt;char&gt;,.char (211 samples, 4.93%)</title><rect x="17.7" y="133" width="58.1" height="15.0" fill="rgb(234,137,32)" rx="2" ry="2" />
+<text  x="20.71" y="143.5" >lexer`..</text>
+</g>
+<g >
+<title>lexer`std::basic_regex&lt;char,.std::regex_traits&lt;char&gt;&gt;::__search&lt;std::allocator&lt;std::sub_match&lt;char (3,128 samples, 73.03%)</title><rect x="84.1" y="149" width="861.8" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="87.11" y="159.5" >lexer`std::basic_regex&lt;char,.std::regex_traits&lt;char&gt;&gt;::__search&lt;std::allocator&lt;std::sub_match&lt;char</text>
+</g>
+<g >
+<title>lexer`std::match_results&lt;std::__wrap_iter&lt;char.const*&gt;&gt;::__assign[abi:ne190102]&lt;char (4 samples, 0.09%)</title><rect x="1186.1" y="165" width="1.1" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1189.14" y="175.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::ostreambuf_iterator&lt;char&gt;::operator=[abi:ne190102](char) (23 samples, 0.54%)</title><rect x="1129.7" y="133" width="6.3" height="15.0" fill="rgb(230,117,28)" rx="2" ry="2" />
+<text  x="1132.66" y="143.5" ></text>
+</g>
+<g >
+<title>lexer`DYLD-STUB$$memcpy (14 samples, 0.33%)</title><rect x="487.2" y="101" width="3.8" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="490.18" y="111.5" ></text>
+</g>
+<g >
+<title>libc++abi`DYLD-STUB$$malloc_type_malloc (1 samples, 0.02%)</title><rect x="917.8" y="101" width="0.3" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="920.80" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`malloc_type_malloc (9 samples, 0.21%)</title><rect x="621.1" y="85" width="2.5" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="624.08" y="95.5" ></text>
+</g>
+<g >
+<title>libc++.1`std::__num_put_base::__format_int(char*,.char (2 samples, 0.05%)</title><rect x="1101.3" y="117" width="0.5" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="1104.29" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`DYLD-STUB$$_platform_memset (4 samples, 0.09%)</title><rect x="895.2" y="101" width="1.1" height="15.0" fill="rgb(213,40,9)" rx="2" ry="2" />
+<text  x="898.21" y="111.5" ></text>
+</g>
+<g >
+<title>libsystem_c`__v2printf (1 samples, 0.02%)</title><rect x="1113.4" y="85" width="0.3" height="15.0" fill="rgb(238,152,36)" rx="2" ry="2" />
+<text  x="1116.41" y="95.5" ></text>
+</g>
+<g >
+<title>lexer`std::__end_state&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (1 samples, 0.02%)</title><rect x="218.3" y="117" width="0.3" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
+<text  x="221.28" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`std::getline[abi:ne190102]&lt;char&gt;(std::basic_istream&lt;char&gt;&amp;,.std::basic_string&lt;char&gt;&amp;, (19 samples, 0.44%)</title><rect x="1180.9" y="165" width="5.2" height="15.0" fill="rgb(207,13,3)" rx="2" ry="2" />
+<text  x="1183.91" y="175.5" ></text>
+</g>
+<g >
+<title>libsystem_malloc`tiny_free_no_lock (31 samples, 0.72%)</title><rect x="896.6" y="101" width="8.5" height="15.0" fill="rgb(230,117,27)" rx="2" ry="2" />
+<text  x="899.58" y="111.5" ></text>
+</g>
+<g >
+<title>libc++abi`operator.new(unsigned (71 samples, 1.66%)</title><rect x="917.0" y="117" width="19.5" height="15.0" fill="rgb(243,175,42)" rx="2" ry="2" />
+<text  x="919.97" y="127.5" ></text>
+</g>
+<g >
+<title>libsystem_pthread`pthread_mutex_unlock (1 samples, 0.02%)</title><rect x="1109.0" y="69" width="0.3" height="15.0" fill="rgb(208,17,4)" rx="2" ry="2" />
+<text  x="1112.00" y="79.5" ></text>
+</g>
+<g >
+<title>lexer`std::__state&lt;char&gt;*.std::vector&lt;std::__state&lt;char&gt;&gt;::__push_back_slow_path&lt;std::__state&lt;char&gt;&gt;(std::__state&lt;char&gt;&amp;&amp;) (804 samples, 18.77%)</title><rect x="252.7" y="117" width="221.5" height="15.0" fill="rgb(233,131,31)" rx="2" ry="2" />
+<text  x="255.72" y="127.5" >lexer`std::__state&lt;char&gt;*.std..</text>
+</g>
+<g >
+<title>lexer`std::__l_anchor_multiline&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (2 samples, 0.05%)</title><rect x="218.6" y="117" width="0.5" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="221.56" y="127.5" ></text>
+</g>
+<g >
+<title>lexer`std::__alternate&lt;char&gt;::__exec(std::__state&lt;char&gt;&amp;).const (28 samples, 0.65%)</title><rect x="172.8" y="117" width="7.7" height="15.0" fill="rgb(230,117,28)" rx="2" ry="2" />
+<text  x="175.83" y="127.5" ></text>
+</g>
+</g>
+</svg>

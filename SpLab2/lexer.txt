@@ -1,0 +1,1013 @@
+Analysis of sampling lexer (pid 14757) every 1 millisecond
+Process:         lexer [14757]
+Path:            /Users/USER/*/lexer
+Load Address:    0x100c5c000
+Identifier:      lexer
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  zsh [88198]
+Target Type:     live task
+
+Date/Time:       2025-12-23 01:42:38.435 +0200
+Launch Time:     2025-12-23 01:42:38.386 +0200
+OS Version:      macOS 15.6 (24G84)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         2752K
+Physical footprint (peak):  2752K
+Idle exit:                  untracked
+----
+
+Call graph:
+    4283 Thread_5853690   DispatchQueue_1: com.apple.main-thread  (serial)
+      4283 start  (in dyld) + 6076  [0x191806b98]
+        4260 main  (in lexer) + 340  [0x100c5d7dc]  lexer.cpp:111
+        + 3141 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 332  [0x100c5d2bc]  lexer.cpp:68
+        + ! 3027 std::basic_regex<char, std::regex_traits<char>>::__search<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type) const  (in lexer) + 224  [0x100c691a0]  regex:5104
+        + ! : 704 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 720  [0x100c600a4]  regex:4892
+        + ! : | 250 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 328  [0x100c60724]  vector:1504
+        + ! : | + 110 _nanov2_free  (in libsystem_malloc.dylib) + 16,0,...  [0x1919cbc28,0x1919cbc18,...]
+        + ! : | + 38 _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        + ! : | + ! 34 __bzero  (in libsystem_platform.dylib) + 0  [0x191be0f90]
+        + ! : | + ! 2 DYLD-STUB$$_platform_bzero  (in libsystem_malloc.dylib) + 12  [0x1919e194c]
+        + ! : | + ! 2 _platform_memset  (in libsystem_platform.dylib) + 160  [0x191be1090]
+        + ! : | + 26 free_tiny  (in libsystem_malloc.dylib) + 460  [0x1919ab99c]
+        + ! : | + ! 13 tiny_free_no_lock  (in libsystem_malloc.dylib) + 28,352,...  [0x1919abb38,0x1919abc7c,...]
+        + ! : | + ! 6 tiny_free_no_lock  (in libsystem_malloc.dylib) + 416  [0x1919abcbc]
+        + ! : | + ! : 6 tiny_free_list_add_ptr  (in libsystem_malloc.dylib) + 92,120,...  [0x1919ac398,0x1919ac3b4,...]
+        + ! : | + ! 5 tiny_free_list_add_ptr  (in libsystem_malloc.dylib) + 568  [0x1919ac574]
+        + ! : | + ! 1 tiny_free_no_lock  (in libsystem_malloc.dylib) + 792  [0x1919abe34]
+        + ! : | + ! : 1 tiny_free_list_remove_ptr  (in libsystem_malloc.dylib) + 260  [0x1919ac694]
+        + ! : | + ! 1 tiny_free_no_lock  (in libsystem_malloc.dylib) + 1012  [0x1919abf10]
+        + ! : | + !   1 tiny_free_list_remove_ptr  (in libsystem_malloc.dylib) + 76  [0x1919ac5dc]
+        + ! : | + 19 _free  (in libsystem_malloc.dylib) + 0,108,...  [0x1919d9b68,0x1919d9bd4,...]
+        + ! : | + 17 _szone_free  (in libsystem_malloc.dylib) + 20,32,...  [0x1919bf08c,0x1919bf098,...]
+        + ! : | + 14 free_tiny  (in libsystem_malloc.dylib) + 136  [0x1919ab858]
+        + ! : | + ! 13 _platform_memset  (in libsystem_platform.dylib) + 12,140,...  [0x191be0ffc,0x191be107c,...]
+        + ! : | + ! 1 DYLD-STUB$$_platform_memset  (in libsystem_malloc.dylib) + 12  [0x1919e197c]
+        + ! : | + 11 free_tiny  (in libsystem_malloc.dylib) + 152,320,...  [0x1919ab868,0x1919ab910,...]
+        + ! : | + 8 DYLD-STUB$$free  (in libc++abi.dylib) + 12  [0x191b6170c]
+        + ! : | + 5 DYLD-STUB$$operator delete(void*)  (in lexer) + 4  [0x100c6bc5c]
+        + ! : | + 2 tiny_free_no_lock  (in libsystem_malloc.dylib) + 1616,1620  [0x1919ac16c,0x1919ac170]
+        + ! : | 220 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 148  [0x100c60670]  vector:1498
+        + ! : | + 202 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | + ! 81 nanov2_malloc_type  (in libsystem_malloc.dylib) + 36,472,...  [0x1919cb9f8,0x1919cbbac,...]
+        + ! : | + ! 80 szone_malloc_should_clear  (in libsystem_malloc.dylib) + 84  [0x1919a7be8]
+        + ! : | + ! : 50 tiny_malloc_should_clear  (in libsystem_malloc.dylib) + 272  [0x1919a8dc4]
+        + ! : | + ! : | 33 tiny_malloc_from_free_list  (in libsystem_malloc.dylib) + 76,1832,...  [0x1919a9570,0x1919a9c4c,...]
+        + ! : | + ! : | 9 tiny_malloc_from_free_list  (in libsystem_malloc.dylib) + 1372  [0x1919a9a80]
+        + ! : | + ! : | + 9 tiny_free_list_add_ptr  (in libsystem_malloc.dylib) + 168,248,...  [0x1919ac3e4,0x1919ac434,...]
+        + ! : | + ! : | 3 tiny_malloc_from_free_list  (in libsystem_malloc.dylib) + 1324  [0x1919a9a50]
+        + ! : | + ! : | + 3 _tiny_check_and_zero_inline_meta_from_freelist  (in libsystem_malloc.dylib) + 80,48  [0x1919df658,0x1919df638]
+        + ! : | + ! : | 2 _tiny_check_and_zero_inline_meta_from_freelist  (in libsystem_malloc.dylib) + 208  [0x1919df6d8]
+        + ! : | + ! : | 2 tiny_malloc_from_free_list  (in libsystem_malloc.dylib) + 420  [0x1919a96c8]
+        + ! : | + ! : | + 2 _tiny_check_and_zero_inline_meta_from_freelist  (in libsystem_malloc.dylib) + 88,92  [0x1919df660,0x1919df664]
+        + ! : | + ! : | 1 tiny_free_list_add_ptr  (in libsystem_malloc.dylib) + 568  [0x1919ac574]
+        + ! : | + ! : 22 tiny_malloc_should_clear  (in libsystem_malloc.dylib) + 292,80,...  [0x1919a8dd8,0x1919a8d04,...]
+        + ! : | + ! : 7 tiny_malloc_should_clear  (in libsystem_malloc.dylib) + 52  [0x1919a8ce8]
+        + ! : | + ! : | 7 rack_get_thread_index  (in libsystem_malloc.dylib) + 12,20,...  [0x1919c2728,0x1919c2730,...]
+        + ! : | + ! : 1 tiny_malloc_from_free_list  (in libsystem_malloc.dylib) + 1876  [0x1919a9c78]
+        + ! : | + ! 16 malloc_type_malloc  (in libsystem_malloc.dylib) + 72,28,...  [0x1919c3370,0x1919c3344,...]
+        + ! : | + ! 14 szone_malloc_should_clear  (in libsystem_malloc.dylib) + 280,16,...  [0x1919a7cac,0x1919a7ba4,...]
+        + ! : | + ! 10 szone_malloc_should_clear  (in libsystem_malloc.dylib) + 120  [0x1919a7c0c]
+        + ! : | + ! : 5 small_malloc_should_clear  (in libsystem_malloc.dylib) + 140,160  [0x1919a7da4,0x1919a7db8]
+        + ! : | + ! : 4 small_malloc_should_clear  (in libsystem_malloc.dylib) + 176  [0x1919a7dc8]
+        + ! : | + ! : | 3 small_malloc_from_free_list  (in libsystem_malloc.dylib) + 60,96  [0x1919a842c,0x1919a8450]
+        + ! : | + ! : | 1 small_free_list_remove_ptr  (in libsystem_malloc.dylib) + 180  [0x1919ace1c]
+        + ! : | + ! : 1 small_malloc_should_clear  (in libsystem_malloc.dylib) + 52  [0x1919a7d4c]
+        + ! : | + ! :   1 rack_get_thread_index  (in libsystem_malloc.dylib) + 0  [0x1919c271c]
+        + ! : | + ! 1 DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib) + 12  [0x191b6174c]
+        + ! : | + 8 nanov2_malloc_type  (in libsystem_malloc.dylib) + 368,480,...  [0x1919cbb44,0x1919cbbb4,...]
+        + ! : | + 7 operator new(unsigned long)  (in libc++abi.dylib) + 36,52,...  [0x191b613d0,0x191b613e0,...]
+        + ! : | + 2 DYLD-STUB$$operator new(unsigned long)  (in lexer) + 4  [0x100c6bc68]
+        + ! : | + 1 szone_malloc_should_clear  (in libsystem_malloc.dylib) + 364  [0x1919a7d00]
+        + ! : | 159 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 252  [0x100c606d8]  vector:1502
+        + ! : | + 143 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 144,180,...  [0x100c607ec,0x100c60810,...]  vector:1052
+        + ! : | + 7 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 32,40  [0x100c6077c,0x100c60784]  vector:1051
+        + ! : | + 5 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 232,244  [0x100c60844,0x100c60850]  vector:1057
+        + ! : | + 2 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 264  [0x100c60864]  vector:1059
+        + ! : | + 1 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 0  [0x100c6075c]  vector:1049
+        + ! : | + 1 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 216  [0x100c60834]  vector:1054
+        + ! : | 36 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 120,56,...  [0x100c60654,0x100c60614,...]  vector:1498
+        + ! : | 13 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 284,280,...  [0x100c60878,0x100c60874,...]  vector:1061
+        + ! : | 7 _nanov2_free  (in libsystem_malloc.dylib) + 424,440,...  [0x1919cbdc0,0x1919cbdd0,...]
+        + ! : | 7 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 176,184,...  [0x100c6068c,0x100c60694,...]  vector:1500
+        + ! : | 3 free_tiny  (in libsystem_malloc.dylib) + 512  [0x1919ab9d0]
+        + ! : | 3 operator new(unsigned long)  (in libc++abi.dylib) + 80  [0x191b613fc]
+        + ! : | 3 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 256,260,...  [0x100c606dc,0x100c606e0,...]  vector:1504
+        + ! : | 2 _szone_free  (in libsystem_malloc.dylib) + 736,748  [0x1919bf358,0x1919bf364]
+        + ! : | 1 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 0  [0x100c605dc]  vector:1496
+        + ! : 448 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 556  [0x100c60000]  regex:4889
+        + ! : | 218 std::__state<char>::__state(std::__state<char> const&)  (in lexer) + 108  [0x100c60c10]  regex:1310
+        + ! : | + 192 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | + ! 155 nanov2_malloc_type  (in libsystem_malloc.dylib) + 36,184,...  [0x1919cb9f8,0x1919cba8c,...]
+        + ! : | + ! 30 malloc_type_malloc  (in libsystem_malloc.dylib) + 72,16,...  [0x1919c3370,0x1919c3338,...]
+        + ! : | + ! 7 DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib) + 12,8  [0x191b6174c,0x191b61748]
+        + ! : | + 10 nanov2_malloc_type  (in libsystem_malloc.dylib) + 480  [0x1919cbbb4]
+        + ! : | + 10 operator new(unsigned long)  (in libc++abi.dylib) + 36,48,...  [0x191b613d0,0x191b613dc,...]
+        + ! : | + 6 DYLD-STUB$$operator new(unsigned long)  (in lexer) + 4,0  [0x100c6bc68,0x100c6bc64]
+        + ! : | 89 std::__state<char>::__state(std::__state<char> const&)  (in lexer) + 212  [0x100c60c78]  regex:1310
+        + ! : | + 82 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | + ! 65 nanov2_malloc_type  (in libsystem_malloc.dylib) + 36,472,...  [0x1919cb9f8,0x1919cbbac,...]
+        + ! : | + ! 9 malloc_type_malloc  (in libsystem_malloc.dylib) + 16,72,...  [0x1919c3338,0x1919c3370,...]
+        + ! : | + ! 8 DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib) + 12  [0x191b6174c]
+        + ! : | + 4 DYLD-STUB$$operator new(unsigned long)  (in lexer) + 4  [0x100c6bc68]
+        + ! : | + 2 operator new(unsigned long)  (in libc++abi.dylib) + 36,52  [0x191b613d0,0x191b613e0]
+        + ! : | + 1 nanov2_malloc_type  (in libsystem_malloc.dylib) + 480  [0x1919cbbb4]
+        + ! : | 60 std::__state<char>::__state(std::__state<char> const&)  (in lexer) + 168  [0x100c60c4c]  regex:1310
+        + ! : | + 51 _platform_memmove  (in libsystem_platform.dylib) + 428,0,...  [0x191be146c,0x191be12c0,...]
+        + ! : | + 9 DYLD-STUB$$memcpy  (in lexer) + 4  [0x100c6bcf8]
+        + ! : | 47 std::__state<char>::__state(std::__state<char> const&)  (in lexer) + 40,32,...  [0x100c60bcc,0x100c60bc4,...]  regex:1310
+        + ! : | 28 std::__state<char>::__state(std::__state<char> const&)  (in lexer) + 244  [0x100c60c98]  regex:1310
+        + ! : | + 23 _platform_memmove  (in libsystem_platform.dylib) + 420,428,...  [0x191be1464,0x191be146c,...]
+        + ! : | + 5 DYLD-STUB$$memcpy  (in lexer) + 4  [0x100c6bcf8]
+        + ! : | 6 operator new(unsigned long)  (in libc++abi.dylib) + 80  [0x191b613fc]
+        + ! : 357 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 532  [0x100c5ffe8]  regex:0
+        + ! : | 198 _nanov2_free  (in libsystem_malloc.dylib) + 16,0,...  [0x1919cbc28,0x1919cbc18,...]
+        + ! : | 102 _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        + ! : | + 82 __bzero  (in libsystem_platform.dylib) + 0,24  [0x191be0f90,0x191be0fa8]
+        + ! : | + 17 _platform_memset  (in libsystem_platform.dylib) + 188,180,...  [0x191be10ac,0x191be10a4,...]
+        + ! : | + 3 DYLD-STUB$$_platform_bzero  (in libsystem_malloc.dylib) + 12  [0x1919e194c]
+        + ! : | 43 _free  (in libsystem_malloc.dylib) + 0,108,...  [0x1919d9b68,0x1919d9bd4,...]
+        + ! : | 9 DYLD-STUB$$free  (in libc++abi.dylib) + 12  [0x191b6170c]
+        + ! : | 5 DYLD-STUB$$operator delete(void*)  (in lexer) + 4  [0x100c6bc5c]
+        + ! : 307 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 420  [0x100c5ff78]  regex:4867
+        + ! : | 40 std::__match_char_icase<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 0  [0x100c6184c]  regex:1999
+        + ! : | 32 std::__match_char_icase<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 64,92,...  [0x100c6188c,0x100c618a8,...]  regex:0
+        + ! : | 17 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 0,24  [0x100c62188,0x100c621a0]  regex:2141
+        + ! : | 16 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 1152  [0x100c62608]  regex:2226
+        + ! : | + 13 _platform_memcmp  (in libsystem_platform.dylib) + 272,260,...  [0x191bdefa0,0x191bdef94,...]
+        + ! : | + 3 DYLD-STUB$$memcmp  (in lexer) + 4  [0x100c6bcec]
+        + ! : | 15 std::__alternate<char>::__exec(std::__state<char>&) const  (in lexer) + 4  [0x100c65290]  regex:1601
+        + ! : | 15 std::__match_char<char>::__exec(std::__state<char>&) const  (in lexer) + 0,16  [0x100c619bc,0x100c619cc]  regex:1967
+        + ! : | 15 std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 0,4  [0x100c5fa14,0x100c5fa18]  regex:1804
+        + ! : | 13 std::__alternate<char>::__exec(std::__state<char>&) const  (in lexer) + 0  [0x100c6528c]  regex:1600
+        + ! : | 11 std::__empty_state<char>::__exec(std::__state<char>&) const  (in lexer) + 12  [0x100c5ec90]  regex:1427
+        + ! : | 11 std::__match_char_icase<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 16,44  [0x100c6185c,0x100c61878]  regex:2000
+        + ! : | 10 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 1228  [0x100c62654]  regex:2226
+        + ! : | + 8 _platform_memcmp  (in libsystem_platform.dylib) + 272,140,...  [0x191bdefa0,0x191bdef1c,...]
+        + ! : | + 2 DYLD-STUB$$memcmp  (in lexer) + 4  [0x100c6bcec]
+        + ! : | 9 std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 172,284,...  [0x100c5fac0,0x100c5fb30,...]  regex:0
+        + ! : | 8 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 1152,1228,...  [0x100c62608,0x100c62654,...]  regex:2226
+        + ! : | 7 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 1080  [0x100c625c0]  regex:2225
+        + ! : | 7 std::__empty_state<char>::__exec(std::__state<char>&) const  (in lexer) + 0  [0x100c5ec84]  regex:1425
+        + ! : | 6 std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 248  [0x100c5fb0c]  regex:1823
+        + ! : | 5 std::__begin_marked_subexpression<char>::__exec(std::__state<char>&) const  (in lexer) + 40,36  [0x100c64bf8,0x100c64bf4]  regex:1634
+        + ! : | 5 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 1276,648,...  [0x100c62684,0x100c62410,...]  regex:0
+        + ! : | 5 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 40  [0x100c621b0]  regex:2144
+        + ! : | 5 std::__match_char_icase<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 52  [0x100c61880]  regex:2000
+        + ! : | + 5 std::ctype<char>::do_tolower(char) const  (in libc++.1.dylib) + 16  [0x191b07b10]
+        + ! : | 5 std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 180  [0x100c5fac8]  regex:1813
+        + ! : | 4 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 688,696  [0x100c62438,0x100c62440]  regex:2215
+        + ! : | 4 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 788  [0x100c6249c]  wrap_iter.h:0
+        + ! : | 3 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 996  [0x100c6256c]  char_traits.h:0
+        + ! : | 3 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 668  [0x100c62424]  regex:2203
+        + ! : | 3 std::__end_marked_subexpression<char>::__exec(std::__state<char>&) const  (in lexer) + 0  [0x100c64c00]  regex:1655
+        + ! : | 3 std::__loop<char>::__exec(std::__state<char>&) const  (in lexer) + 276  [0x100c64fec]  regex:1571
+        + ! : | 2 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 608  [0x100c623e8]  regex:2198
+        + ! : | 2 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 792  [0x100c624a0]  regex:2248
+        + ! : | 2 std::__loop<char>::__exec(std::__state<char>&) const  (in lexer) + 8  [0x100c64ee0]  regex:0
+        + ! : | 2 std::__loop<char>::__exec(std::__state<char>&) const  (in lexer) + 64  [0x100c64f18]  regex:1544
+        + ! : | 2 std::__loop<char>::__exec(std::__state<char>&) const  (in lexer) + 164  [0x100c64f7c]  regex:1558
+        + ! : | 2 std::__repeat_one_loop<char>::__exec(std::__state<char>&) const  (in lexer) + 12  [0x100c65284]  regex:1467
+        + ! : | 2 std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 16  [0x100c5fa24]  regex:1805
+        + ! : | 1 std::__begin_marked_subexpression<char>::__exec(std::__state<char>&) const  (in lexer) + 0  [0x100c64bd0]  regex:1631
+        + ! : | 1 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 1292  [0x100c62694]  new:0
+        + ! : | 1 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 880  [0x100c624f8]  regex:2223
+        + ! : | 1 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 1296  [0x100c62698]  regex:2232
+        + ! : | 1 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 1552  [0x100c62798]  regex:2241
+        + ! : | 1 std::__empty_non_own_state<char>::__exec(std::__state<char>&) const  (in lexer) + 0  [0x100c652bc]  regex:1445
+        + ! : | 1 std::__end_marked_subexpression<char>::__exec(std::__state<char>&) const  (in lexer) + 48  [0x100c64c30]  regex:1659
+        + ! : | 1 std::__end_state<char>::__exec(std::__state<char>&) const  (in lexer) + 0  [0x100c5eb38]  regex:1376
+        + ! : | 1 std::__l_anchor_multiline<char>::__exec(std::__state<char>&) const  (in lexer) + 80  [0x100c5f8f8]  regex:0
+        + ! : | 1 std::__l_anchor_multiline<char>::__exec(std::__state<char>&) const  (in lexer) + 0  [0x100c5f8a8]  regex:1856
+        + ! : | 1 std::__loop<char>::__exec(std::__state<char>&) const  (in lexer) + 76  [0x100c64f24]  regex:1546
+        + ! : | 1 std::__match_any_but_newline<char>::__exec(std::__state<char>&) const  (in libc++.1.dylib) + 0  [0x191b153ac]
+        + ! : | 1 std::__match_char<char>::__exec(std::__state<char>&) const  (in lexer) + 64  [0x100c619fc]  regex:0
+        + ! : | 1 std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 28  [0x100c5fa30]  regex:1810
+        + ! : | 1 std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 44  [0x100c5fa40]  regex:1811
+        + ! : | 1 std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 272  [0x100c5fb24]  regex:1825
+        + ! : 227 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 516  [0x100c5ffd8]  regex:0
+        + ! : | 117 _nanov2_free  (in libsystem_malloc.dylib) + 0,16,...  [0x1919cbc18,0x1919cbc28,...]
+        + ! : | 45 _free  (in libsystem_malloc.dylib) + 24,44,...  [0x1919d9b80,0x1919d9b94,...]
+        + ! : | 45 _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        + ! : | + 37 __bzero  (in libsystem_platform.dylib) + 0  [0x191be0f90]
+        + ! : | + 7 _platform_memset  (in libsystem_platform.dylib) + 160,180,...  [0x191be1090,0x191be10a4,...]
+        + ! : | + 1 DYLD-STUB$$_platform_bzero  (in libsystem_malloc.dylib) + 12  [0x1919e194c]
+        + ! : | 11 DYLD-STUB$$free  (in libc++abi.dylib) + 12  [0x191b6170c]
+        + ! : | 9 DYLD-STUB$$operator delete(void*)  (in lexer) + 4  [0x100c6bc5c]
+        + ! : 197 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 852  [0x100c60128]  regex:4904
+        + ! : | 52 _nanov2_free  (in libsystem_malloc.dylib) + 16,0,...  [0x1919cbc28,0x1919cbc18,...]
+        + ! : | 32 free_tiny  (in libsystem_malloc.dylib) + 460  [0x1919ab99c]
+        + ! : | + 11 tiny_free_no_lock  (in libsystem_malloc.dylib) + 192,352,...  [0x1919abbdc,0x1919abc7c,...]
+        + ! : | + 9 tiny_free_no_lock  (in libsystem_malloc.dylib) + 416  [0x1919abcbc]
+        + ! : | + ! 9 tiny_free_list_add_ptr  (in libsystem_malloc.dylib) + 92,120,...  [0x1919ac398,0x1919ac3b4,...]
+        + ! : | + 6 tiny_free_no_lock  (in libsystem_malloc.dylib) + 1012  [0x1919abf10]
+        + ! : | + ! 6 tiny_free_list_remove_ptr  (in libsystem_malloc.dylib) + 64,36,...  [0x1919ac5d0,0x1919ac5b4,...]
+        + ! : | + 4 tiny_free_no_lock  (in libsystem_malloc.dylib) + 140  [0x1919abba8]
+        + ! : | + ! 4 get_tiny_previous_free_msize  (in libsystem_malloc.dylib) + 56,0  [0x1919b7d54,0x1919b7d1c]
+        + ! : | + 1 tiny_free_list_remove_ptr  (in libsystem_malloc.dylib) + 328  [0x1919ac6d8]
+        + ! : | + 1 tiny_free_no_lock  (in libsystem_malloc.dylib) + 792  [0x1919abe34]
+        + ! : | +   1 tiny_free_list_remove_ptr  (in libsystem_malloc.dylib) + 260  [0x1919ac694]
+        + ! : | 30 _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        + ! : | + 23 __bzero  (in libsystem_platform.dylib) + 0  [0x191be0f90]
+        + ! : | + 4 _platform_memset  (in libsystem_platform.dylib) + 140,160  [0x191be107c,0x191be1090]
+        + ! : | + 3 DYLD-STUB$$_platform_bzero  (in libsystem_malloc.dylib) + 12  [0x1919e194c]
+        + ! : | 17 _szone_free  (in libsystem_malloc.dylib) + 20,32,...  [0x1919bf08c,0x1919bf098,...]
+        + ! : | 15 _free  (in libsystem_malloc.dylib) + 0,76,...  [0x1919d9b68,0x1919d9bb4,...]
+        + ! : | 15 free_tiny  (in libsystem_malloc.dylib) + 136  [0x1919ab858]
+        + ! : | + 11 _platform_memset  (in libsystem_platform.dylib) + 12,140,...  [0x191be0ffc,0x191be107c,...]
+        + ! : | + 4 DYLD-STUB$$_platform_memset  (in libsystem_malloc.dylib) + 12  [0x1919e197c]
+        + ! : | 12 free_tiny  (in libsystem_malloc.dylib) + 36,476,...  [0x1919ab7f4,0x1919ab9ac,...]
+        + ! : | 9 DYLD-STUB$$free  (in libc++abi.dylib) + 12  [0x191b6170c]
+        + ! : | 6 tiny_free_no_lock  (in libsystem_malloc.dylib) + 1616,1620,...  [0x1919ac16c,0x1919ac170,...]
+        + ! : | 4 DYLD-STUB$$operator delete(void*)  (in lexer) + 4  [0x100c6bc5c]
+        + ! : | 3 free_small  (in libsystem_malloc.dylib) + 816  [0x1919aa754]
+        + ! : | + 3 small_free_list_add_ptr  (in libsystem_malloc.dylib) + 72,328  [0x1919ac7d0,0x1919ac8d0]
+        + ! : | 2 free_small  (in libsystem_malloc.dylib) + 156,824  [0x1919aa4c0,0x1919aa75c]
+        + ! : 143 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 124  [0x100c5fe50]  regex:4849
+        + ! : | 81 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 148  [0x100c60670]  vector:1498
+        + ! : | + 72 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | + ! 57 nanov2_malloc_type  (in libsystem_malloc.dylib) + 36,224,...  [0x1919cb9f8,0x1919cbab4,...]
+        + ! : | + ! 14 malloc_type_malloc  (in libsystem_malloc.dylib) + 72,16,...  [0x1919c3370,0x1919c3338,...]
+        + ! : | + ! 1 DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib) + 12  [0x191b6174c]
+        + ! : | + 4 nanov2_malloc_type  (in libsystem_malloc.dylib) + 480  [0x1919cbbb4]
+        + ! : | + 3 operator new(unsigned long)  (in libc++abi.dylib) + 36,44  [0x191b613d0,0x191b613d8]
+        + ! : | + 2 DYLD-STUB$$operator new(unsigned long)  (in lexer) + 4  [0x100c6bc68]
+        + ! : | 31 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 56,120,...  [0x100c60614,0x100c60654,...]  vector:1498
+        + ! : | 13 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 284  [0x100c60878]  vector:1061
+        + ! : | 7 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 252  [0x100c606d8]  vector:1502
+        + ! : | + 3 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 32  [0x100c6077c]  vector:1051
+        + ! : | + 3 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 248  [0x100c60854]  vector:1058
+        + ! : | + 1 std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer) + 8  [0x100c60764]  vector:1049
+        + ! : | 6 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 316  [0x100c60718]  vector:1504
+        + ! : | 3 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 184,220  [0x100c60694,0x100c606b8]  vector:1500
+        + ! : | 2 operator new(unsigned long)  (in libc++abi.dylib) + 80  [0x191b613fc]
+        + ! : 116 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 296  [0x100c5fefc]  regex:4855
+        + ! : | 73 std::vector<std::pair<unsigned long, char const*>>::__append(unsigned long)  (in lexer) + 124  [0x100c60afc]  vector:1171
+        + ! : | + 65 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | + ! 53 nanov2_malloc_type  (in libsystem_malloc.dylib) + 36,184,...  [0x1919cb9f8,0x1919cba8c,...]
+        + ! : | + ! 9 malloc_type_malloc  (in libsystem_malloc.dylib) + 28,44,...  [0x1919c3344,0x1919c3354,...]
+        + ! : | + ! 2 DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib) + 12  [0x191b6174c]
+        + ! : | + ! 1 nanov2_malloc_type  (in libsystem_malloc.dylib) + 472  [0x1919cbbac]
+        + ! : | + !   1 nanov2_allocate_outlined  (in libsystem_malloc.dylib) + 376  [0x1919cd40c]
+        + ! : | + 6 nanov2_malloc_type  (in libsystem_malloc.dylib) + 480  [0x1919cbbb4]
+        + ! : | + 1 DYLD-STUB$$operator new(unsigned long)  (in lexer) + 4  [0x100c6bc68]
+        + ! : | + 1 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | 16 std::vector<std::pair<unsigned long, char const*>>::__append(unsigned long)  (in lexer) + 196  [0x100c60b44]  vector:1172
+        + ! : | + 8 _platform_memset  (in libsystem_platform.dylib) + 180,208  [0x191be10a4,0x191be10c0]
+        + ! : | + 6 DYLD-STUB$$bzero  (in lexer) + 4  [0x100c6bcd4]
+        + ! : | + 2 __bzero  (in libsystem_platform.dylib) + 0,24  [0x191be0f90,0x191be0fa8]
+        + ! : | 14 std::vector<std::pair<unsigned long, char const*>>::__append(unsigned long)  (in lexer) + 216  [0x100c60b58]  vector:1173
+        + ! : | + 10 _platform_memmove  (in libsystem_platform.dylib) + 428,0,...  [0x191be146c,0x191be12c0,...]
+        + ! : | + 4 DYLD-STUB$$memcpy  (in lexer) + 4  [0x100c6bcf8]
+        + ! : | 5 std::vector<std::pair<unsigned long, char const*>>::__append(unsigned long)  (in lexer) + 44,96,...  [0x100c60aac,0x100c60ae0,...]  vector:1171
+        + ! : | 3 std::vector<std::pair<unsigned long, char const*>>::__append(unsigned long)  (in lexer) + 28,32  [0x100c60a9c,0x100c60aa0]  vector:1167
+        + ! : | 3 std::vector<std::pair<unsigned long, char const*>>::__append(unsigned long)  (in lexer) + 220  [0x100c60b5c]  vector:1173
+        + ! : | 2 operator new(unsigned long)  (in libc++abi.dylib) + 80  [0x191b613fc]
+        + ! : 83 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 836  [0x100c60118]  regex:4904
+        + ! : | 43 _nanov2_free  (in libsystem_malloc.dylib) + 28,700,...  [0x1919cbc34,0x1919cbed4,...]
+        + ! : | 20 _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        + ! : | + 17 __bzero  (in libsystem_platform.dylib) + 0  [0x191be0f90]
+        + ! : | + 3 _platform_memset  (in libsystem_platform.dylib) + 188  [0x191be10ac]
+        + ! : | 14 _free  (in libsystem_malloc.dylib) + 0,24,...  [0x1919d9b68,0x1919d9b80,...]
+        + ! : | 4 DYLD-STUB$$operator delete(void*)  (in lexer) + 4  [0x100c6bc5c]
+        + ! : | 2 DYLD-STUB$$free  (in libc++abi.dylib) + 12  [0x191b6170c]
+        + ! : 57 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 232  [0x100c5febc]  regex:4854
+        + ! : | 47 std::vector<std::sub_match<char const*>>::__append(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 172  [0x100c609a0]  vector:1187
+        + ! : | + 43 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | + ! 33 nanov2_malloc_type  (in libsystem_malloc.dylib) + 36,184,...  [0x1919cb9f8,0x1919cba8c,...]
+        + ! : | + ! 8 malloc_type_malloc  (in libsystem_malloc.dylib) + 28,72,...  [0x1919c3344,0x1919c3370,...]
+        + ! : | + ! 2 DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib) + 12  [0x191b6174c]
+        + ! : | + 2 operator new(unsigned long)  (in libc++abi.dylib) + 36  [0x191b613d0]
+        + ! : | + 1 DYLD-STUB$$operator new(unsigned long)  (in lexer) + 4  [0x100c6bc68]
+        + ! : | + 1 nanov2_malloc_type  (in libsystem_malloc.dylib) + 480  [0x1919cbbb4]
+        + ! : | 4 std::vector<std::sub_match<char const*>>::__append(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 328  [0x100c60a3c]  vector:1189
+        + ! : | + 3 DYLD-STUB$$memcpy  (in lexer) + 4  [0x100c6bcf8]
+        + ! : | + 1 _platform_memmove  (in libsystem_platform.dylib) + 428  [0x191be146c]
+        + ! : | 3 std::vector<std::sub_match<char const*>>::__append(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 64,120,...  [0x100c60934,0x100c6096c,...]  vector:1187
+        + ! : | 1 operator new(unsigned long)  (in libc++abi.dylib) + 80  [0x191b613fc]
+        + ! : | 1 std::vector<std::sub_match<char const*>>::__append(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 48  [0x100c60924]  vector:1183
+        + ! : | 1 std::vector<std::sub_match<char const*>>::__append(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 284  [0x100c60a10]  vector:1188
+        + ! : 37 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 344,432,...  [0x100c5ff2c,0x100c5ff84,...]  regex:4868
+        + ! : 36 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 820  [0x100c60108]  regex:4904
+        + ! : | 21 _nanov2_free  (in libsystem_malloc.dylib) + 16,28,...  [0x1919cbc28,0x1919cbc34,...]
+        + ! : | 6 _free  (in libsystem_malloc.dylib) + 108,24  [0x1919d9bd4,0x1919d9b80]
+        + ! : | 6 _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        + ! : | + 6 __bzero  (in libsystem_platform.dylib) + 0  [0x191be0f90]
+        + ! : | 2 DYLD-STUB$$operator delete(void*)  (in lexer) + 0,4  [0x100c6bc58,0x100c6bc5c]
+        + ! : | 1 DYLD-STUB$$free  (in libc++abi.dylib) + 12  [0x191b6170c]
+        + ! : 35 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 372  [0x100c5ff48]  regex:4863
+        + ! : 29 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 408,416  [0x100c5ff6c,0x100c5ff74]  regex:4867
+        + ! : 26 _nanov2_free  (in libsystem_malloc.dylib) + 856,440  [0x1919cbf70,0x1919cbdd0]
+        + ! : 21 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 708,636,...  [0x100c60098,0x100c60050,...]  regex:4892
+        + ! : 17 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 564  [0x100c60008]  regex:4890
+        + ! : 16 std::__state<char>::__state(std::__state<char> const&)  (in lexer) + 288,280,...  [0x100c60cc4,0x100c60cbc,...]  regex:1310
+        + ! : 16 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 516,500,...  [0x100c5ffd8,0x100c5ffc8,...]  regex:0
+        + ! : 16 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 396  [0x100c5ff60]  regex:4866
+        + ! : 16 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 356  [0x100c5ff38]  regex:4901
+        + ! : 15 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 604  [0x100c60030]  regex:4891
+        + ! : | 12 std::__alternate<char>::__exec_split(bool, std::__state<char>&) const  (in lexer) + 28  [0x100c652b4]  regex:0
+        + ! : | 2 std::__loop<char>::__exec_split(bool, std::__state<char>&) const  (in lexer) + 8  [0x100c650d8]  regex:1576
+        + ! : | 1 std::__loop<char>::__exec_split(bool, std::__state<char>&) const  (in lexer) + 32  [0x100c650f0]  regex:1577
+        + ! : 12 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 744  [0x100c600bc]  regex:4893
+        + ! : 11 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 772,840,...  [0x100c600d8,0x100c6011c,...]  regex:4904
+        + ! : 10 std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 868,876,...  [0x100c624ec,0x100c624f4,...]  regex:2256
+        + ! : 9 std::__match_char_icase<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer) + 112  [0x100c618bc]  regex:2008
+        + ! : 9 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 580  [0x100c60018]  regex:4890
+        + ! : | 6 std::__alternate<char>::__exec_split(bool, std::__state<char>&) const  (in lexer) + 28  [0x100c652b4]  regex:0
+        + ! : | 3 std::__loop<char>::__exec_split(bool, std::__state<char>&) const  (in lexer) + 24  [0x100c650e8]  regex:1580
+        + ! : 8 std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer) + 340  [0x100c60730]  vector:1504
+        + ! : 8 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 216,192,...  [0x100c5feac,0x100c5fe94,...]  regex:4854
+        + ! : 7 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 104,148,...  [0x100c5fe3c,0x100c5fe68,...]  regex:4849
+        + ! : 7 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 272,268,...  [0x100c5fee4,0x100c5fee0,...]  regex:4855
+        + ! : 6 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 588,600  [0x100c60020,0x100c6002c]  regex:4891
+        + ! : 5 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 764  [0x100c600d0]  new:0
+        + ! : 4 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 40  [0x100c5fdfc]  regex:4842
+        + ! : 4 std::vector<std::sub_match<char const*>>::__append(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 376  [0x100c60a6c]  vector:1191
+        + ! : 3 std::vector<std::pair<unsigned long, char const*>>::__append(unsigned long)  (in lexer) + 272  [0x100c60b90]  vector:1175
+        + ! : 2 _szone_free  (in libsystem_malloc.dylib) + 736  [0x1919bf358]
+        + ! : 2 free_tiny  (in libsystem_malloc.dylib) + 512  [0x1919ab9d0]
+        + ! : 1 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 948  [0x100c60188]  regex:4882
+        + ! 94 std::basic_regex<char, std::regex_traits<char>>::__search<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type) const  (in lexer) + 92  [0x100c6911c]  regex:5103
+        + ! : 74 std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 176  [0x100c602ac]  vector:1404
+        + ! : | 68 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | + 59 nanov2_malloc_type  (in libsystem_malloc.dylib) + 36,124,...  [0x1919cb9f8,0x1919cba50,...]
+        + ! : | + 8 malloc_type_malloc  (in libsystem_malloc.dylib) + 28,16,...  [0x1919c3344,0x1919c3338,...]
+        + ! : | + 1 DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib) + 12  [0x191b6174c]
+        + ! : | 3 nanov2_malloc_type  (in libsystem_malloc.dylib) + 480  [0x1919cbbb4]
+        + ! : | 3 operator new(unsigned long)  (in libc++abi.dylib) + 36,72  [0x191b613d0,0x191b613f4]
+        + ! : 9 std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 60,32  [0x100c60238,0x100c6021c]  vector:1395
+        + ! : 3 std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 136  [0x100c60284]  vector:1404
+        + ! : 2 std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 4  [0x100c60200]  vector:1394
+        + ! : 2 std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 68  [0x100c60240]  vector:1403
+        + ! : 2 std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 200  [0x100c602c4]  vector:1405
+        + ! : 1 operator new(unsigned long)  (in libc++abi.dylib) + 76  [0x191b613f8]
+        + ! : 1 std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 92  [0x100c60258]  vector:0
+        + ! 7 std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer) + 876,884  [0x100c60140,0x100c60148]  regex:4904
+        + ! 6 std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer) + 456  [0x100c603c4]  vector:1407
+        + ! 3 std::basic_regex<char, std::regex_traits<char>>::__search<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type) const  (in lexer) + 268  [0x100c691cc]  regex:5111
+        + ! 2 std::basic_regex<char, std::regex_traits<char>>::__search<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type) const  (in lexer) + 16,44  [0x100c690d0,0x100c690ec]  regex:5099
+        + ! 2 std::basic_regex<char, std::regex_traits<char>>::__search<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type) const  (in lexer) + 132  [0x100c69144]  regex:5104
+        + 488 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 1032  [0x100c5d578]  lexer.cpp:74
+        + ! 480 std::basic_ostream<char>::flush()  (in libc++.1.dylib) + 156  [0x191adc1b0]
+        + ! : 475 std::__stdoutbuf<char>::sync()  (in libc++.1.dylib) + 172  [0x191aee084]
+        + ! : | 452 fflush  (in libsystem_c.dylib) + 124  [0x191a47c0c]
+        + ! : | + 449 __sflush  (in libsystem_c.dylib) + 232  [0x191a47d6c]
+        + ! : | + ! 447 _swrite  (in libsystem_c.dylib) + 108  [0x191a49ccc]
+        + ! : | + ! : 447 __swrite  (in libsystem_c.dylib) + 24  [0x191a68d78]
+        + ! : | + ! :   446 __write_nocancel  (in libsystem_kernel.dylib) + 8,4  [0x191b69aa4,0x191b69aa0]
+        + ! : | + ! :   1 DYLD-STUB$$write$NOCANCEL  (in libsystem_c.dylib) + 12  [0x191ab23f0]
+        + ! : | + ! 1 __swrite  (in libsystem_c.dylib) + 28  [0x191a68d7c]
+        + ! : | + ! 1 _swrite  (in libsystem_c.dylib) + 108  [0x191a49ccc]
+        + ! : | + 3 __sflush  (in libsystem_c.dylib) + 32,20  [0x191a47ca4,0x191a47c98]
+        + ! : | 12 fflush  (in libsystem_c.dylib) + 116  [0x191a47c04]
+        + ! : | + 9 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : | + ! 4 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 24  [0x191ba2478]
+        + ! : | + ! 3 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 48,148  [0x191ba2794,0x191ba27f8]
+        + ! : | + ! 2 DYLD-STUB$$pthread_mutex_lock  (in libsystem_c.dylib) + 12  [0x191ab2080]
+        + ! : | + 2 pthread_mutex_lock  (in libsystem_pthread.dylib) + 180  [0x191ba240c]
+        + ! : | + 1 flockfile  (in libsystem_c.dylib) + 24  [0x191a47c60]
+        + ! : | +   1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | 6 fflush  (in libsystem_c.dylib) + 136  [0x191a47c18]
+        + ! : | + 4 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : | + ! 3 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 28,68,...  [0x191ba2a34,0x191ba2a5c,...]
+        + ! : | + ! 1 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 20  [0x191ba2988]
+        + ! : | + 1 funlockfile  (in libsystem_c.dylib) + 44  [0x191a47e20]
+        + ! : | + ! 1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + 1 funlockfile  (in libsystem_c.dylib) + 0  [0x191a47df4]
+        + ! : | 1 DYLD-STUB$$fflush  (in libc++.1.dylib) + 12  [0x191b1f434]
+        + ! : | 1 __sflush  (in libsystem_c.dylib) + 268  [0x191a47d90]
+        + ! : | 1 fflush  (in libsystem_c.dylib) + 0  [0x191a47b90]
+        + ! : | 1 flockfile  (in libsystem_c.dylib) + 56  [0x191a47c80]
+        + ! : | 1 funlockfile  (in libsystem_c.dylib) + 56  [0x191a47e2c]
+        + ! : 3 std::__stdoutbuf<char>::sync()  (in libc++.1.dylib) + 96,192  [0x191aee038,0x191aee098]
+        + ! : 1 fflush  (in libsystem_c.dylib) + 148  [0x191a47c24]
+        + ! : 1 std::__stdoutbuf<char>::sync()  (in libc++.1.dylib) + 100  [0x191aee03c]
+        + ! :   1 std::codecvt<char, char, __mbstate_t>::do_unshift(__mbstate_t&, char*, char*, char*&) const  (in libc++.1.dylib) + 0  [0x191b0883c]
+        + ! 3 DYLD-STUB$$std::basic_ostream<char>::flush()  (in lexer) + 4  [0x100c6bb9c]
+        + ! 2 std::basic_ostream<char>::flush()  (in libc++.1.dylib) + 208  [0x191adc1e4]
+        + ! : 2 std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib) + 48,64  [0x191adfbd4,0x191adfbe4]
+        + ! 2 std::basic_ostream<char>::flush()  (in libc++.1.dylib) + 48,156  [0x191adc144,0x191adc1b0]
+        + ! 1 std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib) + 208  [0x191adfc74]
+        + 123 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 808  [0x100c5d498]  lexer.cpp:72
+        + ! 108 std::basic_ostream<char>::operator<<(int)  (in libc++.1.dylib) + 372  [0x191ae04dc]
+        + ! : 61 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 120  [0x191af5a04]
+        + ! : | 60 snprintf_l  (in libsystem_c.dylib) + 32  [0x191a43e90]
+        + ! : | + 56 _vsnprintf  (in libsystem_c.dylib) + 212  [0x191a65384]
+        + ! : | + ! 19 __vfprintf  (in libsystem_c.dylib) + 520,5568,...  [0x191a39c70,0x191a3b028,...]
+        + ! : | + ! 11 __vfprintf  (in libsystem_c.dylib) + 5396  [0x191a3af7c]
+        + ! : | + ! : 11 __ultoa  (in libsystem_c.dylib) + 232,240  [0x191a3ce78,0x191a3ce80]
+        + ! : | + ! 8 __vfprintf  (in libsystem_c.dylib) + 168  [0x191a39b10]
+        + ! : | + ! : 4 localeconv_l  (in libsystem_c.dylib) + 308  [0x191a3c91c]
+        + ! : | + ! : | 4 os_unfair_lock_unlock  (in libsystem_platform.dylib) + 8  [0x191bde88c]
+        + ! : | + ! : 3 localeconv_l  (in libsystem_c.dylib) + 60  [0x191a3c824]
+        + ! : | + ! : | 3 DYLD-STUB$$os_unfair_lock_lock  (in libsystem_c.dylib) + 12,0  [0x191ab1ed0,0x191ab1ec4]
+        + ! : | + ! : 1 localeconv_l  (in libsystem_c.dylib) + 24  [0x191a3c800]
+        + ! : | + ! 8 __vfprintf  (in libsystem_c.dylib) + 11156  [0x191a3c5fc]
+        + ! : | + ! : 4 __sfvwrite  (in libsystem_c.dylib) + 336  [0x191a3cacc]
+        + ! : | + ! : | 3 _platform_memmove  (in libsystem_platform.dylib) + 452  [0x191be1484]
+        + ! : | + ! : | 1 __sfvwrite  (in libsystem_c.dylib) + 468  [0x191a3cb50]
+        + ! : | + ! : 2 __sfvwrite  (in libsystem_c.dylib) + 0,920  [0x191a3c97c,0x191a3cd14]
+        + ! : | + ! : 2 __vfprintf  (in libsystem_c.dylib) + 11156  [0x191a3c5fc]
+        + ! : | + ! :   2 __sfvwrite  (in libsystem_c.dylib) + 88  [0x191a3c9d4]
+        + ! : | + ! 4 __vfprintf  (in libsystem_c.dylib) + 11432  [0x191a3c710]
+        + ! : | + ! : 3 _free  (in libsystem_malloc.dylib) + 0,124  [0x1919d9b68,0x1919d9be4]
+        + ! : | + ! : 1 DYLD-STUB$$free  (in libsystem_c.dylib) + 12  [0x191ab1a50]
+        + ! : | + ! 3 __ultoa  (in libsystem_c.dylib) + 256  [0x191a3ce90]
+        + ! : | + ! 2 localeconv_l  (in libsystem_c.dylib) + 328  [0x191a3c930]
+        + ! : | + ! 1 __v2printf  (in libsystem_c.dylib) + 236  [0x191a397ac]
+        + ! : | + 3 _vsnprintf  (in libsystem_c.dylib) + 0,180,...  [0x191a652b0,0x191a65364,...]
+        + ! : | + 1 __v2printf  (in libsystem_c.dylib) + 408  [0x191a39858]
+        + ! : | 1 DYLD-STUB$$snprintf_l  (in libc++.1.dylib) + 12  [0x191b1f854]
+        + ! : 32 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 284  [0x191af5aa8]
+        + ! : | 29 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in libc++.1.dylib) + 128  [0x191af6838]
+        + ! : | + 13 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + ! : | + ! 6 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : | + ! : 4 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 204,72,...  [0x191ba2ae4,0x191ba2a60,...]
+        + ! : | + ! : 1 DYLD-STUB$$pthread_mutex_unlock  (in libsystem_c.dylib) + 12  [0x191ab20a0]
+        + ! : | + ! : 1 pthread_mutex_unlock  (in libsystem_pthread.dylib) + 12  [0x191ba28b0]
+        + ! : | + ! 2 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 256  [0x191ba2b18]
+        + ! : | + ! 2 funlockfile  (in libsystem_c.dylib) + 24  [0x191a47e0c]
+        + ! : | + ! : 2 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | + ! 2 pthread_mutex_unlock  (in libsystem_pthread.dylib) + 160  [0x191ba2944]
+        + ! : | + ! 1 funlockfile  (in libsystem_c.dylib) + 44  [0x191a47e20]
+        + ! : | + !   1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + 8 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + ! 6 __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        + ! : | + ! : 5 _platform_memmove  (in libsystem_platform.dylib) + 452  [0x191be1484]
+        + ! : | + ! : 1 __sfvwrite  (in libsystem_c.dylib) + 484  [0x191a3cb60]
+        + ! : | + ! 1 __sfvwrite  (in libsystem_c.dylib) + 920  [0x191a3cd14]
+        + ! : | + ! 1 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + !   1 __sfvwrite  (in libsystem_c.dylib) + 104  [0x191a3c9e4]
+        + ! : | + 7 fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        + ! : | + ! 5 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : | + ! : 2 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 60,148  [0x191ba27a0,0x191ba27f8]
+        + ! : | + ! : 2 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 24  [0x191ba2478]
+        + ! : | + ! : 1 pthread_mutex_lock  (in libsystem_pthread.dylib) + 12  [0x191ba2364]
+        + ! : | + ! 1 flockfile  (in libsystem_c.dylib) + 24  [0x191a47c60]
+        + ! : | + ! : 1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + ! 1 flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        + ! : | + !   1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + 1 flockfile  (in libsystem_c.dylib) + 56  [0x191a47c80]
+        + ! : | 2 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in libc++.1.dylib) + 124,136  [0x191af6834,0x191af6840]
+        + ! : | 1 std::__stdoutbuf<char>::xsputn(char const*, long)  (in libc++.1.dylib) + 72  [0x191aee104]
+        + ! : 8 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 188  [0x191af5a48]
+        + ! : | 3 std::__num_put<char>::__widen_and_group_int(char*, char*, char*, char*, char*&, char*&, std::locale const&)  (in libc++.1.dylib) + 100  [0x191af7afc]
+        + ! : | + 3 std::locale::use_facet(std::locale::id&) const  (in libc++.1.dylib) + 28  [0x191b06c70]
+        + ! : | 3 std::__num_put<char>::__widen_and_group_int(char*, char*, char*, char*, char*&, char*&, std::locale const&)  (in libc++.1.dylib) + 860  [0x191af7df4]
+        + ! : | + 3 std::ctype<char>::do_widen(char const*, char const*, char*) const  (in libc++.1.dylib) + 20  [0x191b07b6c]
+        + ! : | 2 std::__num_put<char>::__widen_and_group_int(char*, char*, char*, char*, char*&, char*&, std::locale const&)  (in libc++.1.dylib) + 144  [0x191af7b28]
+        + ! : |   2 std::numpunct<char>::do_grouping() const  (in libc++.1.dylib) + 20  [0x191b0c1d4]
+        + ! : 2 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 92  [0x191af59e8]
+        + ! : | 2 std::__num_put_base::__format_int(char*, char const*, bool, unsigned int)  (in libc++.1.dylib) + 0,136  [0x191b0c898,0x191b0c920]
+        + ! : 2 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 156  [0x191af5a28]
+        + ! : | 2 std::locale::locale(std::locale const&)  (in libc++.1.dylib) + 36  [0x191b06448]
+        + ! : 1 snprintf_l  (in libsystem_c.dylib) + 40  [0x191a43e98]
+        + ! : 1 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 140  [0x191af5a18]
+        + ! : | 1 std::__num_put_base::__identify_padding(char*, char*, std::ios_base const&)  (in libc++.1.dylib) + 56  [0x191af6784]
+        + ! : 1 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 296  [0x191af5ab4]
+        + ! 5 std::basic_ostream<char>::operator<<(int)  (in libc++.1.dylib) + 0,360,...  [0x191ae0368,0x191ae04d0,...]
+        + ! 3 std::basic_ostream<char>::operator<<(int)  (in libc++.1.dylib) + 152  [0x191ae0400]
+        + ! : 3 std::locale::use_facet(std::locale::id&) const  (in libc++.1.dylib) + 28  [0x191b06c70]
+        + ! :   3 std::locale::id::__get()  (in libc++.1.dylib) + 32,24  [0x191b06c08,0x191b06c00]
+        + ! 2 std::basic_ostream<char>::operator<<(int)  (in libc++.1.dylib) + 136  [0x191ae03f0]
+        + ! : 2 std::locale::locale(std::locale const&)  (in libc++.1.dylib) + 4  [0x191b06428]
+        + ! 2 std::basic_ostream<char>::operator<<(int)  (in libc++.1.dylib) + 164  [0x191ae040c]
+        + ! : 2 std::locale::~locale()  (in libc++.1.dylib) + 20  [0x191aef1f0]
+        + ! 1 DYLD-STUB$$std::basic_ostream<char>::operator<<(int)  (in lexer) + 4  [0x100c6bbc0]
+        + ! 1 std::locale::use_facet(std::locale::id&) const  (in libc++.1.dylib) + 60  [0x191b06c90]
+        + ! 1 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 328  [0x191af5ad4]
+        + 117 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 376  [0x100c5d2e8]  lexer.cpp:68
+        + ! 62 _nanov2_free  (in libsystem_malloc.dylib) + 16,700,...  [0x1919cbc28,0x1919cbed4,...]
+        + ! 35 _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        + ! : 23 __bzero  (in libsystem_platform.dylib) + 0  [0x191be0f90]
+        + ! : 9 _platform_memset  (in libsystem_platform.dylib) + 180,188,...  [0x191be10a4,0x191be10ac,...]
+        + ! : 3 DYLD-STUB$$_platform_bzero  (in libsystem_malloc.dylib) + 12  [0x1919e194c]
+        + ! 16 _free  (in libsystem_malloc.dylib) + 0,44,...  [0x1919d9b68,0x1919d9b94,...]
+        + ! 2 DYLD-STUB$$free  (in libc++abi.dylib) + 12  [0x191b6170c]
+        + ! 2 DYLD-STUB$$operator delete(void*)  (in lexer) + 4  [0x100c6bc5c]
+        + 63 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 900  [0x100c5d4f4]  lexer.cpp:73
+        + ! 60 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + ! : 32 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + ! : | 12 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + 7 __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        + ! : | + ! 7 _platform_memmove  (in libsystem_platform.dylib) + 436,444,...  [0x191be1474,0x191be147c,...]
+        + ! : | + 5 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | +   5 __sfvwrite  (in libsystem_c.dylib) + 168,48,...  [0x191a3ca24,0x191a3c9ac,...]
+        + ! : | 9 fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        + ! : | + 4 flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        + ! : | + ! 3 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + ! 1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | + 3 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : | + ! 2 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 48,148  [0x191ba2794,0x191ba27f8]
+        + ! : | + ! 1 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 24  [0x191ba2478]
+        + ! : | + 2 flockfile  (in libsystem_c.dylib) + 24  [0x191a47c60]
+        + ! : | +   1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | +   1 __error  (in libsystem_kernel.dylib) + 8  [0x191b66604]
+        + ! : | 6 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + ! : | + 5 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : | + ! 2 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 28,216  [0x191ba2a34,0x191ba2af0]
+        + ! : | + ! 1 DYLD-STUB$$pthread_mutex_unlock  (in libsystem_c.dylib) + 12  [0x191ab20a0]
+        + ! : | + ! 1 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 20  [0x191ba2988]
+        + ! : | + ! 1 pthread_mutex_unlock  (in libsystem_pthread.dylib) + 12  [0x191ba28b0]
+        + ! : | + 1 funlockfile  (in libsystem_c.dylib) + 24  [0x191a47e0c]
+        + ! : | +   1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | 3 DYLD-STUB$$fwrite  (in libc++.1.dylib) + 12  [0x191b1f4f4]
+        + ! : | 2 fwrite  (in libsystem_c.dylib) + 28  [0x191a58504]
+        + ! : 19 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 248  [0x100c6b898]  locale:1292
+        + ! : | 8 fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        + ! : | + 5 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : | + ! 2 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 48,100  [0x191ba2794,0x191ba27c8]
+        + ! : | + ! 2 pthread_mutex_lock  (in libsystem_pthread.dylib) + 12  [0x191ba2364]
+        + ! : | + ! 1 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 100  [0x191ba24c4]
+        + ! : | + 2 flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        + ! : | + ! 2 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + 1 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 316  [0x191ba28a0]
+        + ! : | 5 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + ! : | + 4 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : | + ! 2 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 216  [0x191ba2af0]
+        + ! : | + ! 1 DYLD-STUB$$pthread_mutex_unlock  (in libsystem_c.dylib) + 12  [0x191ab20a0]
+        + ! : | + ! 1 pthread_mutex_unlock  (in libsystem_pthread.dylib) + 12  [0x191ba28b0]
+        + ! : | + 1 pthread_mutex_unlock  (in libsystem_pthread.dylib) + 160  [0x191ba2944]
+        + ! : | 4 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + 3 __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        + ! : | + ! 3 _platform_memmove  (in libsystem_platform.dylib) + 428,444,...  [0x191be146c,0x191be147c,...]
+        + ! : | + 1 __sfvwrite  (in libsystem_c.dylib) + 908  [0x191a3cd08]
+        + ! : | 1 flockfile  (in libsystem_c.dylib) + 56  [0x191a47c80]
+        + ! : | 1 fwrite  (in libsystem_c.dylib) + 28  [0x191a58504]
+        + ! : 5 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 204  [0x100c6b86c]  locale:1291
+        + ! : | 5 _platform_memset  (in libsystem_platform.dylib) + 200,180,...  [0x191be10b8,0x191be10a4,...]
+        + ! : 2 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 232,244  [0x100c6b888,0x100c6b894]  locale:1292
+        + ! : 1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 52  [0x100c6b7d4]  locale:1278
+        + ! : 1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 204  [0x100c6b86c]  locale:1291
+        + ! 2 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 240  [0x100c6b724]  basic_ostream.h:517
+        + ! : 2 std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib) + 24,64  [0x191adfbbc,0x191adfbe4]
+        + ! 1 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 52  [0x100c6b668]  basic_ostream.h:503
+        + !   1 DYLD-STUB$$std::basic_ostream<char>::sentry::sentry(std::basic_ostream<char>&)  (in lexer) + 4  [0x100c6bba8]
+        + 45 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 360  [0x100c5d2d8]  lexer.cpp:68
+        + ! 16 std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer) + 100  [0x100c69418]  regex:4663
+        + ! : 8 std::vector<std::sub_match<std::__wrap_iter<char const*>>>::__append(unsigned long)  (in lexer) + 168  [0x100c6b560]  vector:1171
+        + ! : | 7 operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        + ! : | + 5 nanov2_malloc_type  (in libsystem_malloc.dylib) + 36,84,...  [0x1919cb9f8,0x1919cba28,...]
+        + ! : | + 2 malloc_type_malloc  (in libsystem_malloc.dylib) + 72,92  [0x1919c3370,0x1919c3384]
+        + ! : | 1 DYLD-STUB$$operator new(unsigned long)  (in lexer) + 4  [0x100c6bc68]
+        + ! : 3 std::vector<std::sub_match<std::__wrap_iter<char const*>>>::__append(unsigned long)  (in lexer) + 24,32,...  [0x100c6b4d0,0x100c6b4d8,...]  vector:1167
+        + ! : 2 operator new(unsigned long)  (in libc++abi.dylib) + 80  [0x191b613fc]
+        + ! : 2 std::vector<std::sub_match<std::__wrap_iter<char const*>>>::__append(unsigned long)  (in lexer) + 64,120  [0x100c6b4f8,0x100c6b530]  vector:1171
+        + ! : 1 std::vector<std::sub_match<std::__wrap_iter<char const*>>>::__append(unsigned long)  (in lexer) + 264  [0x100c6b5c0]  vector:1172
+        + ! 16 std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer) + 68,44  [0x100c693f8,0x100c693e0]  regex:4663
+        + ! 5 std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer) + 356,352  [0x100c69518,0x100c69514]  regex:4674
+        + ! 3 std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer) + 120  [0x100c6942c]  regex:4664
+        + ! 2 std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer) + 388  [0x100c69538]  regex:4677
+        + ! 2 std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer) + 404  [0x100c69548]  regex:4680
+        + ! 1 std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer) + 280  [0x100c694cc]  regex:4667
+        + 45 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 780  [0x100c5d47c]  lexer.cpp:72
+        + ! 42 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + ! : 37 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + ! : | 13 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + ! : | + 12 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : | + ! 7 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 28,68,...  [0x191ba2a34,0x191ba2a5c,...]
+        + ! : | + ! 3 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 92,20  [0x191ba29d0,0x191ba2988]
+        + ! : | + ! 2 DYLD-STUB$$pthread_mutex_unlock  (in libsystem_c.dylib) + 12  [0x191ab20a0]
+        + ! : | + 1 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 256  [0x191ba2b18]
+        + ! : | 9 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + 5 __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        + ! : | + ! 4 _platform_memmove  (in libsystem_platform.dylib) + 452  [0x191be1484]
+        + ! : | + ! 1 __sfvwrite  (in libsystem_c.dylib) + 484  [0x191a3cb60]
+        + ! : | + 2 __sfvwrite  (in libsystem_c.dylib) + 908,920  [0x191a3cd08,0x191a3cd14]
+        + ! : | + 2 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | +   2 __sfvwrite  (in libsystem_c.dylib) + 100,344  [0x191a3c9e0,0x191a3cad4]
+        + ! : | 8 fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        + ! : | + 6 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : | + ! 2 DYLD-STUB$$pthread_mutex_lock  (in libsystem_c.dylib) + 12  [0x191ab2080]
+        + ! : | + ! 2 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 48,148  [0x191ba2794,0x191ba27f8]
+        + ! : | + ! 1 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 24  [0x191ba2478]
+        + ! : | + ! 1 pthread_mutex_lock  (in libsystem_pthread.dylib) + 12  [0x191ba2364]
+        + ! : | + 1 flockfile  (in libsystem_c.dylib) + 24  [0x191a47c60]
+        + ! : | + ! 1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | + 1 flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        + ! : | +   1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | 2 funlockfile  (in libsystem_c.dylib) + 56  [0x191a47e2c]
+        + ! : | 2 fwrite  (in libsystem_c.dylib) + 28,228  [0x191a58504,0x191a585cc]
+        + ! : | 2 std::__stdoutbuf<char>::xsputn(char const*, long)  (in libc++.1.dylib) + 32  [0x191aee0dc]
+        + ! : | 1 flockfile  (in libsystem_c.dylib) + 56  [0x191a47c80]
+        + ! : 2 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 84  [0x100c6b7f4]  locale:1285
+        + ! : 1 fwrite  (in libsystem_c.dylib) + 404  [0x191a5867c]
+        + ! : 1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 20  [0x100c6b7b4]  locale:1274
+        + ! : 1 std::__stdoutbuf<char>::xsputn(char const*, long)  (in libc++.1.dylib) + 72  [0x191aee104]
+        + ! 2 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 240  [0x100c6b724]  basic_ostream.h:517
+        + ! : 1 DYLD-STUB$$std::basic_ostream<char>::sentry::~sentry()  (in lexer) + 4  [0x100c6bbb4]
+        + ! : 1 std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib) + 24  [0x191adfbbc]
+        + ! 1 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 0  [0x100c6b634]  basic_ostream.h:499
+        + 44 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 824  [0x100c5d4a8]  lexer.cpp:72
+        + ! 42 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + ! : 31 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + ! : | 13 fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        + ! : | + 11 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : | + ! 7 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 100,148,...  [0x191ba27c8,0x191ba27f8,...]
+        + ! : | + ! 3 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 24  [0x191ba2478]
+        + ! : | + ! 1 DYLD-STUB$$pthread_mutex_lock  (in libsystem_c.dylib) + 12  [0x191ab2080]
+        + ! : | + 1 flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        + ! : | + ! 1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | + 1 pthread_mutex_lock  (in libsystem_pthread.dylib) + 180  [0x191ba240c]
+        + ! : | 9 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + ! : | + 4 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : | + ! 3 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 28,68,...  [0x191ba2a34,0x191ba2a5c,...]
+        + ! : | + ! 1 DYLD-STUB$$pthread_mutex_unlock  (in libsystem_c.dylib) + 12  [0x191ab20a0]
+        + ! : | + 4 funlockfile  (in libsystem_c.dylib) + 44  [0x191a47e20]
+        + ! : | + ! 3 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | + ! 1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + 1 pthread_mutex_unlock  (in libsystem_pthread.dylib) + 160  [0x191ba2944]
+        + ! : | 5 fwrite  (in libsystem_c.dylib) + 88,176,...  [0x191a58540,0x191a58598,...]
+        + ! : | 3 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + 2 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + ! 2 __sfvwrite  (in libsystem_c.dylib) + 100,140  [0x191a3c9e0,0x191a3ca08]
+        + ! : | + 1 __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        + ! : | +   1 _platform_memmove  (in libsystem_platform.dylib) + 0  [0x191be12c0]
+        + ! : | 1 flockfile  (in libsystem_c.dylib) + 56  [0x191a47c80]
+        + ! : 4 std::__stdoutbuf<char>::xsputn(char const*, long)  (in libc++.1.dylib) + 72  [0x191aee104]
+        + ! : 2 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 4,20  [0x100c6b7a4,0x100c6b7b4]  locale:1274
+        + ! : 2 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 52  [0x100c6b7d4]  locale:1278
+        + ! : 2 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 84  [0x100c6b7f4]  locale:1285
+        + ! : 1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 108  [0x100c6b80c]  locale:1290
+        + ! 2 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 52  [0x100c6b668]  basic_ostream.h:503
+        + !   2 std::basic_ostream<char>::sentry::sentry(std::basic_ostream<char>&)  (in libc++.1.dylib) + 28,52  [0x191adfb5c,0x191adfb74]
+        + 44 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 944  [0x100c5d520]  lexer.cpp:74
+        + ! 42 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + ! : 38 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + ! : | 14 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + 12 __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        + ! : | + ! 9 _platform_memmove  (in libsystem_platform.dylib) + 460,420  [0x191be148c,0x191be1464]
+        + ! : | + ! 3 __sfvwrite  (in libsystem_c.dylib) + 468,484  [0x191a3cb50,0x191a3cb60]
+        + ! : | + 2 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | +   2 __sfvwrite  (in libsystem_c.dylib) + 60,168  [0x191a3c9b8,0x191a3ca24]
+        + ! : | 10 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + ! : | + 7 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : | + ! 6 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 28,204,...  [0x191ba2a34,0x191ba2ae4,...]
+        + ! : | + ! 1 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 20  [0x191ba2988]
+        + ! : | + 2 funlockfile  (in libsystem_c.dylib) + 24  [0x191a47e0c]
+        + ! : | + ! 2 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | + 1 funlockfile  (in libsystem_c.dylib) + 44  [0x191a47e20]
+        + ! : | +   1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | 7 fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        + ! : | + 2 flockfile  (in libsystem_c.dylib) + 24  [0x191a47c60]
+        + ! : | + ! 1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + ! 1 __error  (in libsystem_kernel.dylib) + 8  [0x191b66604]
+        + ! : | + 2 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : | + ! 1 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 48  [0x191ba2794]
+        + ! : | + ! 1 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 24  [0x191ba2478]
+        + ! : | + 2 flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        + ! : | + ! 2 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + 1 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 316  [0x191ba28a0]
+        + ! : | 5 fwrite  (in libsystem_c.dylib) + 28,176,...  [0x191a58504,0x191a58598,...]
+        + ! : | 1 funlockfile  (in libsystem_c.dylib) + 56  [0x191a47e2c]
+        + ! : | 1 std::__stdoutbuf<char>::xsputn(char const*, long)  (in libc++.1.dylib) + 32  [0x191aee0dc]
+        + ! : 3 fwrite  (in libsystem_c.dylib) + 404  [0x191a5867c]
+        + ! : 1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 108  [0x100c6b80c]  locale:1290
+        + ! 1 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 52  [0x100c6b668]  basic_ostream.h:503
+        + ! : 1 std::basic_ostream<char>::sentry::sentry(std::basic_ostream<char>&)  (in libc++.1.dylib) + 52  [0x191adfb74]
+        + ! 1 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 240  [0x100c6b724]  basic_ostream.h:517
+        + !   1 DYLD-STUB$$std::basic_ostream<char>::sentry::~sentry()  (in lexer) + 4  [0x100c6bbb4]
+        + 36 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 916  [0x100c5d504]  lexer.cpp:74
+        + ! 27 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + ! : 25 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + ! : | 13 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + ! : | + 8 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : | + ! 5 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 68,96,...  [0x191ba2a5c,0x191ba2a78,...]
+        + ! : | + ! 2 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 20  [0x191ba2988]
+        + ! : | + ! 1 DYLD-STUB$$pthread_mutex_unlock  (in libsystem_c.dylib) + 12  [0x191ab20a0]
+        + ! : | + 2 funlockfile  (in libsystem_c.dylib) + 24  [0x191a47e0c]
+        + ! : | + ! 1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : | + ! 1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | + 2 funlockfile  (in libsystem_c.dylib) + 44  [0x191a47e20]
+        + ! : | + ! 2 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | + 1 pthread_mutex_unlock  (in libsystem_pthread.dylib) + 160  [0x191ba2944]
+        + ! : | 5 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + 2 __sfvwrite  (in libsystem_c.dylib) + 920  [0x191a3cd14]
+        + ! : | + 2 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : | + ! 2 __sfvwrite  (in libsystem_c.dylib) + 100,168  [0x191a3c9e0,0x191a3ca24]
+        + ! : | + 1 __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        + ! : | +   1 _platform_memmove  (in libsystem_platform.dylib) + 452  [0x191be1484]
+        + ! : | 4 fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        + ! : | + 3 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : | + ! 2 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 24,100  [0x191ba2478,0x191ba24c4]
+        + ! : | + ! 1 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 148  [0x191ba27f8]
+        + ! : | + 1 flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        + ! : | +   1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : | 3 fwrite  (in libsystem_c.dylib) + 28,88,...  [0x191a58504,0x191a58540,...]
+        + ! : 1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 84  [0x100c6b7f4]  locale:1285
+        + ! : 1 std::__stdoutbuf<char>::xsputn(char const*, long)  (in libc++.1.dylib) + 72  [0x191aee104]
+        + ! 5 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 240  [0x100c6b724]  basic_ostream.h:517
+        + ! : 3 std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib) + 48,64  [0x191adfbd4,0x191adfbe4]
+        + ! : 2 DYLD-STUB$$std::basic_ostream<char>::sentry::~sentry()  (in lexer) + 4  [0x100c6bbb4]
+        + ! 3 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 52  [0x100c6b668]  basic_ostream.h:503
+        + ! : 3 std::basic_ostream<char>::sentry::sentry(std::basic_ostream<char>&)  (in libc++.1.dylib) + 28,52  [0x191adfb5c,0x191adfb74]
+        + ! 1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 372  [0x100c6b914]  locale:1306
+        + 31 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 1024  [0x100c5d570]  lexer.cpp:74
+        + ! 24 std::basic_ostream<char>::put(char)  (in libc++.1.dylib) + 132  [0x191ae1bc0]
+        + ! : 20 std::ostreambuf_iterator<char>::operator=[abi:ne190102](char)  (in libc++.1.dylib) + 96  [0x191ae1b20]
+        + ! : | 20 std::__stdoutbuf<char>::overflow(int)  (in libc++.1.dylib) + 100  [0x191aee1e4]
+        + ! : |   12 fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        + ! : |   + 7 flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        + ! : |   + ! 5 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 148,48,...  [0x191ba27f8,0x191ba2794,...]
+        + ! : |   + ! 1 _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 100  [0x191ba24c4]
+        + ! : |   + ! 1 pthread_mutex_lock  (in libsystem_pthread.dylib) + 12  [0x191ba2364]
+        + ! : |   + 2 flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        + ! : |   + ! 2 DYLD-STUB$$__error  (in libsystem_c.dylib) + 12  [0x191ab1400]
+        + ! : |   + 1 _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 316  [0x191ba28a0]
+        + ! : |   + 1 flockfile  (in libsystem_c.dylib) + 24  [0x191a47c60]
+        + ! : |   + ! 1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + ! : |   + 1 pthread_mutex_lock  (in libsystem_pthread.dylib) + 180  [0x191ba240c]
+        + ! : |   5 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + ! : |   + 4 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + ! : |   + ! 3 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 28,132,...  [0x191ba2a34,0x191ba2a9c,...]
+        + ! : |   + ! 1 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 20  [0x191ba2988]
+        + ! : |   + 1 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 108  [0x191ba29e0]
+        + ! : |   2 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : |   + 1 __sfvwrite  (in libsystem_c.dylib) + 908  [0x191a3cd08]
+        + ! : |   + 1 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! : |   +   1 __sfvwrite  (in libsystem_c.dylib) + 48  [0x191a3c9ac]
+        + ! : |   1 fwrite  (in libsystem_c.dylib) + 88  [0x191a58540]
+        + ! : 3 std::ostreambuf_iterator<char>::operator=[abi:ne190102](char)  (in libc++.1.dylib) + 20,28  [0x191ae1ad4,0x191ae1adc]
+        + ! : 1 std::__stdoutbuf<char>::overflow(int)  (in libc++.1.dylib) + 168  [0x191aee228]
+        + ! 2 DYLD-STUB$$std::basic_ostream<char>::put(char)  (in lexer) + 4  [0x100c6bb90]
+        + ! 2 std::basic_ostream<char>::put(char)  (in libc++.1.dylib) + 64  [0x191ae1b7c]
+        + ! 2 std::ostreambuf_iterator<char>::operator=[abi:ne190102](char)  (in libc++.1.dylib) + 120  [0x191ae1b38]
+        + ! 1 std::basic_ostream<char>::put(char)  (in libc++.1.dylib) + 184  [0x191ae1bf4]
+        + !   1 std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib) + 64  [0x191adfbe4]
+        + 31 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 1068  [0x100c5d59c]  lexer.cpp:88
+        + ! 15 _nanov2_free  (in libsystem_malloc.dylib) + 16,0,...  [0x1919cbc28,0x1919cbc18,...]
+        + ! 10 DYLD-STUB$$free  (in libc++abi.dylib) + 0,12  [0x191b61700,0x191b6170c]
+        + ! 3 _free  (in libsystem_malloc.dylib) + 44,24  [0x1919d9b94,0x1919d9b80]
+        + ! 1 DYLD-STUB$$operator delete(void*)  (in lexer) + 4  [0x100c6bc5c]
+        + ! 1 _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        + ! : 1 _platform_memset  (in libsystem_platform.dylib) + 176  [0x191be10a0]
+        + ! 1 operator delete(void*)  (in libc++abi.dylib) + 0  [0x191b5f4d0]
+        + 7 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 604  [0x100c5d3cc]  lexer.cpp:85
+        + ! 7 std::basic_ostream<char>::flush()  (in libc++.1.dylib) + 156  [0x191adc1b0]
+        + !   7 std::__stdoutbuf<char>::sync()  (in libc++.1.dylib) + 172  [0x191aee084]
+        + !     7 fflush  (in libsystem_c.dylib) + 124  [0x191a47c0c]
+        + !       7 __sflush  (in libsystem_c.dylib) + 232  [0x191a47d6c]
+        + !         7 _swrite  (in libsystem_c.dylib) + 108  [0x191a49ccc]
+        + !           7 __swrite  (in libsystem_c.dylib) + 24  [0x191a68d78]
+        + !             7 __write_nocancel  (in libsystem_kernel.dylib) + 8  [0x191b69aa4]
+        + 5 std::basic_regex<char, std::regex_traits<char>>::__search<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type) const  (in lexer) + 712  [0x100c69388]  regex:5135
+        + 4 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 296,332  [0x100c5d298,0x100c5d2bc]  lexer.cpp:68
+        + 4 std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer) + 420,424  [0x100c69558,0x100c6955c]  regex:4681
+        + 3 _nanov2_free  (in libsystem_malloc.dylib) + 856  [0x1919cbf70]
+        + 3 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 256  [0x100c6b734]  basic_ostream.h:521
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 192  [0x100c5d230]  lexer.cpp:65
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 380  [0x100c5d2ec]  lexer.cpp:67
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 740  [0x100c5d454]  lexer.cpp:70
+        + ! 2 _platform_memmove  (in libsystem_platform.dylib) + 452,460  [0x191be1484,0x191be148c]
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 968  [0x100c5d538]  lexer.cpp:74
+        + ! 1 DYLD-STUB$$std::ios_base::getloc() const  (in lexer) + 4  [0x100c6baf4]
+        + ! 1 std::locale::locale(std::locale const&)  (in libc++.1.dylib) + 4  [0x191b06428]
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 1012  [0x100c5d564]  lexer.cpp:74
+        + ! 2 std::locale::~locale()  (in libc++.1.dylib) + 20  [0x191aef1f0]
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 420  [0x100c5d314]  lexer.cpp:83
+        + ! 1 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + ! : 1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + ! :   1 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! :     1 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + ! :       1 __sfvwrite  (in libsystem_c.dylib) + 60  [0x191a3c9b8]
+        + ! 1 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 240  [0x100c6b724]  basic_ostream.h:517
+        + !   1 std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib) + 64  [0x191adfbe4]
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 464  [0x100c5d340]  lexer.cpp:83
+        + ! 2 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + !   1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 52  [0x100c6b7d4]  locale:1278
+        + !   1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + !     1 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + !       1 __sfvwrite  (in libsystem_c.dylib) + 920  [0x191a3cd14]
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 496  [0x100c5d360]  lexer.cpp:85
+        + ! 2 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + !   2 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + !     1 flockfile  (in libsystem_c.dylib) + 56  [0x191a47c80]
+        + !     1 fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        + !       1 __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        + !         1 __sfvwrite  (in libsystem_c.dylib) + 484  [0x191a3cb60]
+        + 2 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 516  [0x100c5d374]  lexer.cpp:85
+        + ! 2 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + !   2 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + !     2 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + !       2 funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        + !         1 _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 148  [0x191ba2aac]
+        + !         1 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 92  [0x191ba29d0]
+        + 2 std::basic_ostream<char>::put(char)  (in libc++.1.dylib) + 200  [0x191ae1c04]
+        + 1 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 708  [0x100c5d434]  lexer.cpp:70
+        + 1 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 448  [0x100c5d330]  lexer.cpp:83
+        + ! 1 std::basic_ostream<char>::operator<<(int)  (in libc++.1.dylib) + 372  [0x191ae04dc]
+        + !   1 std::num_put<char, std::ostreambuf_iterator<char>>::__do_put_integral[abi:ne190102]<long>(std::ostreambuf_iterator<char>, std::ios_base&, char, long, char const*) const  (in libc++.1.dylib) + 120  [0x191af5a04]
+        + !     1 snprintf_l  (in libsystem_c.dylib) + 32  [0x191a43e90]
+        + !       1 _vsnprintf  (in libsystem_c.dylib) + 212  [0x191a65384]
+        + !         1 __vfprintf  (in libsystem_c.dylib) + 11156  [0x191a3c5fc]
+        + !           1 __vfprintf  (in libsystem_c.dylib) + 11156  [0x191a3c5fc]
+        + !             1 __sfvwrite  (in libsystem_c.dylib) + 96  [0x191a3c9dc]
+        + 1 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 480  [0x100c5d350]  lexer.cpp:84
+        + ! 1 std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        + !   1 std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        + !     1 fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        + !       1 funlockfile  (in libsystem_c.dylib) + 44  [0x191a47e20]
+        + !         1 __error  (in libsystem_kernel.dylib) + 4  [0x191b66600]
+        + 1 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 1124  [0x100c5d5d4]  lexer.cpp:89
+        + 1 std::basic_ostream<char>::operator<<(int)  (in libc++.1.dylib) + 452  [0x191ae052c]
+        + 1 std::locale::use_facet(std::locale::id&) const  (in libc++.1.dylib) + 60  [0x191b06c90]
+        22 main  (in lexer) + 296  [0x100c5d7b0]  lexer.cpp:110
+        + 4 std::getline[abi:ne190102]<char>(std::basic_istream<char>&, std::basic_string<char>&, char)  (in lexer) + 164  [0x100c6b9e8]  istream:1263
+        + ! 4 std::basic_streambuf<char>::uflow()  (in libc++.1.dylib) + 56  [0x191adbaa8]
+        + !   4 std::basic_filebuf<char>::underflow()  (in libc++.1.dylib) + 264  [0x191aeb23c]
+        + !     3 fread  (in libsystem_c.dylib) + 148  [0x191a4c6ec]
+        + !     : 3 __fread  (in libsystem_c.dylib) + 500  [0x191a43dd0]
+        + !     :   3 __srefill1  (in libsystem_c.dylib) + 36  [0x191a43b14]
+        + !     :     3 _sread  (in libsystem_c.dylib) + 32  [0x191a43b80]
+        + !     :       3 __sread  (in libsystem_c.dylib) + 24  [0x191a66bd4]
+        + !     :         3 __read_nocancel  (in libsystem_kernel.dylib) + 8  [0x191b67b6c]
+        + !     1 fread  (in libsystem_c.dylib) + 160  [0x191a4c6f8]
+        + !       1 funlockfile  (in libsystem_c.dylib) + 44  [0x191a47e20]
+        + !         1 DYLD-STUB$$__error  (in libsystem_c.dylib) + 0  [0x191ab13f4]
+        + 4 std::getline[abi:ne190102]<char>(std::basic_istream<char>&, std::basic_string<char>&, char)  (in lexer) + 228  [0x100c6ba28]  string:0
+        + 3 std::basic_string<char>::push_back(char)  (in libc++.1.dylib) + 168,164  [0x191ad0764,0x191ad0760]
+        + 3 std::getline[abi:ne190102]<char>(std::basic_istream<char>&, std::basic_string<char>&, char)  (in lexer) + 172  [0x100c6b9f0]  istream:1269
+        + 3 std::getline[abi:ne190102]<char>(std::basic_istream<char>&, std::basic_string<char>&, char)  (in lexer) + 196  [0x100c6ba08]  istream:1272
+        + ! 2 std::basic_string<char>::push_back(char)  (in libc++.1.dylib) + 28,56  [0x191ad06d8,0x191ad06f4]
+        + ! 1 DYLD-STUB$$std::basic_string<char>::push_back(char)  (in lexer) + 4  [0x100c6bb24]
+        + 2 std::getline[abi:ne190102]<char>(std::basic_istream<char>&, std::basic_string<char>&, char)  (in lexer) + 52  [0x100c6b978]  istream:1255
+        + ! 2 std::basic_istream<char>::sentry::sentry(std::basic_istream<char>&, bool)  (in libc++.1.dylib) + 60,104  [0x191adbee0,0x191adbf0c]
+        + 2 std::getline[abi:ne190102]<char>(std::basic_istream<char>&, std::basic_string<char>&, char)  (in lexer) + 208  [0x100c6ba14]  istream:1273
+        + 1 std::getline[abi:ne190102]<char>(std::basic_istream<char>&, std::basic_string<char>&, char)  (in lexer) + 12  [0x100c6b950]  istream:1253
+        1 analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer) + 1144  [0x100c5d5e8]  lexer.cpp:89
+
+Total number in stack (recursive counted multiple, when >=5):
+        22       __sfvwrite  (in libsystem_c.dylib) + 0  [0x191a3c97c]
+        19       fwrite  (in libsystem_c.dylib) + 316  [0x191a58624]
+        15       DYLD-STUB$$__error  (in libsystem_c.dylib) + 0  [0x191ab13f4]
+        15       __error  (in libsystem_kernel.dylib) + 0  [0x191b665fc]
+        15       nanov2_malloc_type  (in libsystem_malloc.dylib) + 0  [0x1919cb9d4]
+        14       operator new(unsigned long)  (in libc++abi.dylib) + 0  [0x191b613ac]
+        13       _platform_memmove  (in libsystem_platform.dylib) + 0  [0x191be12c0]
+        12       _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib) + 0  [0x191ba2764]
+        12       _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib) + 0  [0x191ba2a18]
+        11       _nanov2_free  (in libsystem_malloc.dylib) + 0  [0x1919cbc18]
+        11       _platform_memset  (in libsystem_platform.dylib) + 0  [0x191be0ff0]
+        10       funlockfile  (in libsystem_c.dylib) + 40  [0x191a47e1c]
+        10       fwrite  (in libsystem_c.dylib) + 372  [0x191a5865c]
+        10       std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer) + 100  [0x100c6b804]  locale:1285
+        10       std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 200  [0x100c6b6fc]  basic_ostream.h:506
+        9       _free  (in libsystem_malloc.dylib) + 0  [0x1919d9b68]
+        9       _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib) + 0  [0x191ba2460]
+        9       flockfile  (in libsystem_c.dylib) + 40  [0x191a47c70]
+        9       fwrite  (in libsystem_c.dylib) + 0  [0x191a584e8]
+        8       DYLD-STUB$$free  (in libc++abi.dylib) + 0  [0x191b61700]
+        8       DYLD-STUB$$operator delete(void*)  (in lexer) + 0  [0x100c6bc58]
+        8       __bzero  (in libsystem_platform.dylib) + 0  [0x191be0f90]
+        8       __sfvwrite  (in libsystem_c.dylib) + 372  [0x191a3caf0]
+        8       _nanov2_free  (in libsystem_malloc.dylib) + 524  [0x1919cbe24]
+        8       _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 0  [0x191ba2974]
+        8       flockfile  (in libsystem_c.dylib) + 44  [0x191a47c74]
+        8       fwrite  (in libsystem_c.dylib) + 172  [0x191a58594]
+        8       malloc_type_malloc  (in libsystem_malloc.dylib) + 0  [0x1919c3328]
+        8       operator new(unsigned long)  (in libc++abi.dylib) + 52  [0x191b613e0]
+        7       DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib) + 0  [0x191b61740]
+        7       DYLD-STUB$$operator new(unsigned long)  (in lexer) + 0  [0x100c6bc64]
+        7       funlockfile  (in libsystem_c.dylib) + 44  [0x191a47e20]
+        7       pthread_mutex_lock  (in libsystem_pthread.dylib) + 0  [0x191ba2358]
+        7       pthread_mutex_unlock  (in libsystem_pthread.dylib) + 0  [0x191ba28a4]
+        7       std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib) + 0  [0x191adfba4]
+        6       DYLD-STUB$$pthread_mutex_unlock  (in libsystem_c.dylib) + 0  [0x191ab2094]
+        6       flockfile  (in libsystem_c.dylib) + 0  [0x191a47c48]
+        6       flockfile  (in libsystem_c.dylib) + 24  [0x191a47c60]
+        6       std::__stdoutbuf<char>::xsputn(char const*, long)  (in libc++.1.dylib) + 0  [0x191aee0bc]
+        5       DYLD-STUB$$_platform_bzero  (in libsystem_malloc.dylib) + 0  [0x1919e1940]
+        5       std::__put_character_sequence[abi:ne190102]<char>(std::basic_ostream<char>&, char const*, unsigned long)  (in lexer) + 240  [0x100c6b724]  basic_ostream.h:517
+        5       tiny_free_list_add_ptr  (in libsystem_malloc.dylib) + 0  [0x1919ac33c]
+        5       tiny_free_list_remove_ptr  (in libsystem_malloc.dylib) + 0  [0x1919ac590]
+
+Sort by top of stack, same collapsed (when >= 5):
+        _nanov2_free  (in libsystem_malloc.dylib)        654
+        nanov2_malloc_type  (in libsystem_malloc.dylib)        541
+        __write_nocancel  (in libsystem_kernel.dylib)        453
+        std::basic_regex<char, std::regex_traits<char>>::__match_at_start_ecma<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type, bool) const  (in lexer)        255
+        __bzero  (in libsystem_platform.dylib)        224
+        std::vector<std::__state<char>>::__swap_out_circular_buffer(std::__split_buffer<std::__state<char>&>&)  (in lexer)        192
+        _free  (in libsystem_malloc.dylib)        164
+        _platform_memmove  (in libsystem_platform.dylib)        120
+        malloc_type_malloc  (in libsystem_malloc.dylib)        96
+        std::__state<char>* std::vector<std::__state<char>>::__push_back_slow_path<std::__state<char>>(std::__state<char>&&)  (in lexer)        95
+        std::__match_char_icase<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer)        92
+        _platform_memset  (in libsystem_platform.dylib)        80
+        std::__bracket_expression<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer)        74
+        std::__state<char>::__state(std::__state<char> const&)  (in lexer)        63
+        DYLD-STUB$$free  (in libc++abi.dylib)        52
+        operator new(unsigned long)  (in libc++abi.dylib)        45
+        std::__word_boundary<char, std::regex_traits<char>>::__exec(std::__state<char>&) const  (in lexer)        40
+        _pthread_mutex_firstfit_unlock_slow  (in libsystem_pthread.dylib)        39
+        _szone_free  (in libsystem_malloc.dylib)        38
+        __sfvwrite  (in libsystem_c.dylib)        36
+        tiny_malloc_from_free_list  (in libsystem_malloc.dylib)        34
+        std::match_results<std::__wrap_iter<char const*>>::__assign[abi:ne190102]<char const*>(std::__wrap_iter<char const*>, std::__wrap_iter<char const*>, std::match_results<char const*> const&, bool)  (in lexer)        33
+        DYLD-STUB$$operator delete(void*)  (in lexer)        32
+        tiny_free_no_lock  (in libsystem_malloc.dylib)        32
+        tiny_free_list_add_ptr  (in libsystem_malloc.dylib)        30
+        _pthread_mutex_firstfit_lock_slow  (in libsystem_pthread.dylib)        28
+        free_tiny  (in libsystem_malloc.dylib)        28
+        std::__alternate<char>::__exec(std::__state<char>&) const  (in lexer)        28
+        std::vector<std::sub_match<char const*>>::assign(unsigned long, std::sub_match<char const*> const&)  (in lexer)        25
+        fwrite  (in libsystem_c.dylib)        23
+        DYLD-STUB$$malloc_type_malloc  (in libc++abi.dylib)        22
+        tiny_malloc_should_clear  (in libsystem_malloc.dylib)        22
+        DYLD-STUB$$memcpy  (in lexer)        21
+        _platform_memcmp  (in libsystem_platform.dylib)        21
+        DYLD-STUB$$__error  (in libsystem_c.dylib)        20
+        __error  (in libsystem_kernel.dylib)        20
+        __vfprintf  (in libsystem_c.dylib)        19
+        std::__alternate<char>::__exec_split(bool, std::__state<char>&) const  (in lexer)        18
+        std::__empty_state<char>::__exec(std::__state<char>&) const  (in lexer)        18
+        std::__pad_and_output[abi:ne190102]<char>(std::ostreambuf_iterator<char>, char const*, char const*, char const*, std::ios_base&, char)  (in lexer)        18
+        DYLD-STUB$$operator new(unsigned long)  (in lexer)        17
+        _pthread_mutex_lock_init_slow  (in libsystem_pthread.dylib)        16
+        std::__match_char<char>::__exec(std::__state<char>&) const  (in lexer)        16
+        szone_malloc_should_clear  (in libsystem_malloc.dylib)        15
+        __ultoa  (in libsystem_c.dylib)        14
+        std::vector<std::pair<unsigned long, char const*>>::__append(unsigned long)  (in lexer)        14
+        DYLD-STUB$$_platform_bzero  (in libsystem_malloc.dylib)        12
+        std::basic_regex<char, std::regex_traits<char>>::__search<std::allocator<std::sub_match<char const*>>>(char const*, char const*, std::match_results<char const*>&, std::regex_constants::match_flag_type) const  (in lexer)        12
+        _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib)        11
+        analyzeLine(std::basic_string<char> const&, int, std::vector<LexerRule> const&)  (in lexer)        11
+        std::basic_ostream<char>::sentry::~sentry()  (in libc++.1.dylib)        11
+        std::__loop<char>::__exec(std::__state<char>&) const  (in lexer)        10
+        std::__stdoutbuf<char>::xsputn(char const*, long)  (in libc++.1.dylib)        10
+        std::getline[abi:ne190102]<char>(std::basic_istream<char>&, std::basic_string<char>&, char)  (in lexer)        10
+        tiny_free_list_remove_ptr  (in libsystem_malloc.dylib)        10
+        pthread_mutex_lock  (in libsystem_pthread.dylib)        9
+        std::vector<std::sub_match<char const*>>::__append(unsigned long, std::sub_match<char const*> const&)  (in lexer)        9
+        pthread_mutex_unlock  (in libsystem_pthread.dylib)        8
+        rack_get_thread_index  (in libsystem_malloc.dylib)        8
+        DYLD-STUB$$pthread_mutex_unlock  (in libsystem_c.dylib)        7
+        _tiny_check_and_zero_inline_meta_from_freelist  (in libsystem_malloc.dylib)        7
+        DYLD-STUB$$bzero  (in lexer)        6
+        flockfile  (in libsystem_c.dylib)        6
+        std::__begin_marked_subexpression<char>::__exec(std::__state<char>&) const  (in lexer)        6
+        std::__loop<char>::__exec_split(bool, std::__state<char>&) const  (in lexer)        6
+        std::basic_ostream<char>::operator<<(int)  (in libc++.1.dylib)        6
+        std::basic_ostream<char>::sentry::sentry(std::basic_ostream<char>&)  (in libc++.1.dylib)        6
+        std::vector<std::sub_match<std::__wrap_iter<char const*>>>::__append(unsigned long)  (in lexer)        6
+        DYLD-STUB$$_platform_memset  (in libsystem_malloc.dylib)        5
+        DYLD-STUB$$memcmp  (in lexer)        5
+        DYLD-STUB$$pthread_mutex_lock  (in libsystem_c.dylib)        5
+        funlockfile  (in libsystem_c.dylib)        5
+        small_malloc_should_clear  (in libsystem_malloc.dylib)        5
+        std::basic_string<char>::push_back(char)  (in libc++.1.dylib)        5
+        std::ctype<char>::do_tolower(char) const  (in libc++.1.dylib)        5
+        std::locale::locale(std::locale const&)  (in libc++.1.dylib)        5
+        std::locale::use_facet(std::locale::id&) const  (in libc++.1.dylib)        5
+        std::ostreambuf_iterator<char>::operator=[abi:ne190102](char)  (in libc++.1.dylib)        5
+
+Binary Images:
+       0x100c5c000 -        0x100c6d227 +lexer (0) <C177B9E0-E406-3DDF-9C19-0F599BBD1F5A> /Users/*/lexer
+       0x1917ac000 -        0x1917ff893  libobjc.A.dylib (940.4) <8CA52E4D-F699-3D14-8061-EEA9D4366538> /usr/lib/libobjc.A.dylib
+       0x191800000 -        0x19189b577  dyld (1.0.0 - 1286.10) <3247E185-CED2-36FF-9E29-47A77C23E004> /usr/lib/dyld
+       0x19189c000 -        0x19189f168  libsystem_blocks.dylib (96) <BA8F0C40-B12D-3D8B-8396-FC3F8A733C27> /usr/lib/system/libsystem_blocks.dylib
+       0x1918a0000 -        0x1918ea8ff  libxpc.dylib (2894.140.12) <1B8951EB-68DB-37BA-9581-240B796AA872> /usr/lib/system/libxpc.dylib
+       0x1918eb000 -        0x1919067ff  libsystem_trace.dylib (1643.120.5) <AC8466B8-AF1D-3895-876B-228151F0DF1D> /usr/lib/system/libsystem_trace.dylib
+       0x191907000 -        0x1919a53b7  libcorecrypto.dylib (1736.140.2) <7254F3F1-A46F-30B6-934A-511B730A8FC7> /usr/lib/system/libcorecrypto.dylib
+       0x1919a6000 -        0x1919ed06f  libsystem_malloc.dylib (715.140.5) <85947F4E-385D-3B6D-9BF5-844EFE876D53> /usr/lib/system/libsystem_malloc.dylib
+       0x1919ee000 -        0x191a3475f  libdispatch.dylib (1521.140.2) <24CE0D89-4114-30C2-A81A-3DB1F5931CFF> /usr/lib/system/libdispatch.dylib
+       0x191a35000 -        0x191a37d1b  libsystem_featureflags.dylib (97) <856DB4EF-8C67-3842-970C-6FA814B07749> /usr/lib/system/libsystem_featureflags.dylib
+       0x191a38000 -        0x191ab9243  libsystem_c.dylib (1698.140.3) <DFEA8794-80CE-37C3-8F6A-108AA1D0B1B0> /usr/lib/system/libsystem_c.dylib
+       0x191aba000 -        0x191b46ff7  libc++.1.dylib (1900.181) <643ED232-CE19-3F63-8015-0AEE768C002F> /usr/lib/libc++.1.dylib
+       0x191b47000 -        0x191b64fff  libc++abi.dylib (1900.181) <776A4AFB-71EE-32AB-B2EE-E6FF80818654> /usr/lib/libc++abi.dylib
+       0x191b65000 -        0x191ba0653  libsystem_kernel.dylib (11417.140.69) <6E4A96AD-04B8-3E8A-B91D-087E62306246> /usr/lib/system/libsystem_kernel.dylib
+       0x191ba1000 -        0x191bada47  libsystem_pthread.dylib (536) <D6494BA9-171E-39FC-B1AA-28ECF87975D1> /usr/lib/system/libsystem_pthread.dylib
+       0x191bae000 -        0x191bddba3  libdyld.dylib (1286.10) <01BCB3F7-AB89-30BD-87EE-91B291EADAE8> /usr/lib/system/libdyld.dylib
+       0x191bde000 -        0x191be5e0b  libsystem_platform.dylib (349.140.6) <FD19A599-8750-31F9-924F-C2810C938371> /usr/lib/system/libsystem_platform.dylib
+       0x191be6000 -        0x191c156f7  libsystem_info.dylib (597) <9720B57E-A0DF-3BDD-8149-0801054B5D00> /usr/lib/system/libsystem_info.dylib
+       0x1956ac000 -        0x1956b6387  libsystem_darwin.dylib (1698.140.3) <8E58BBDB-E560-3AB4-8A1D-849AB83CBFC5> /usr/lib/system/libsystem_darwin.dylib
+       0x195b0e000 -        0x195b1ffeb  libsystem_notify.dylib (342) <6A411086-A1A2-349F-B9CA-348F9DCBB415> /usr/lib/system/libsystem_notify.dylib
+       0x197b11000 -        0x197b2be8f  libsystem_networkextension.dylib (2063.140.6) <8183B684-71EB-3FB1-8378-EB830CADAE7D> /usr/lib/system/libsystem_networkextension.dylib
+       0x197ba8000 -        0x197bbffdb  libsystem_asl.dylib (402) <FE29D1E8-D286-33F9-81CB-822E632D1571> /usr/lib/system/libsystem_asl.dylib
+       0x199705000 -        0x19970d3a7  libsystem_symptoms.dylib (2022.140.4) <AABA26A2-74BC-3219-BAA3-ACC8D81D8589> /usr/lib/system/libsystem_symptoms.dylib
+       0x19cf52000 -        0x19cf8238f  libsystem_containermanager.dylib (689.100.6) <24EE4AC1-5C9F-3EE0-8B4E-9D060EBCBD41> /usr/lib/system/libsystem_containermanager.dylib
+       0x19e1b7000 -        0x19e1bb5df  libsystem_configuration.dylib (1351.140.5) <B1ADB810-702B-3646-8B66-EB2C288FE51A> /usr/lib/system/libsystem_configuration.dylib
+       0x19e1bc000 -        0x19e1c247f  libsystem_sandbox.dylib (2401.140.15) <B86C6D35-683E-3156-BAB2-A422F5AFF2BD> /usr/lib/system/libsystem_sandbox.dylib
+       0x19f1c7000 -        0x19f1c9fe3  libquarantine.dylib (181.120.2) <8CE8DAD0-52D6-3F46-98EF-161E1397FB48> /usr/lib/system/libquarantine.dylib
+       0x19f8dd000 -        0x19f8e4033  libsystem_coreservices.dylib (178.6.1) <A4E84D5A-8D0E-3692-B888-89B9EEF8753D> /usr/lib/system/libsystem_coreservices.dylib
+       0x19fd5c000 -        0x19fd992b7  libsystem_m.dylib (3291.100.4) <0D060230-BD2F-3C8E-ACB9-8A79F5CD8EDE> /usr/lib/system/libsystem_m.dylib
+       0x19fd9b000 -        0x19fd9e4e7  libmacho.dylib (1024.3) <87AB4EEF-3A18-3399-A767-C6BF4ECEDCEB> /usr/lib/system/libmacho.dylib
+       0x19fdb8000 -        0x19fdc55ef  libcommonCrypto.dylib (600035) <E6BC26C2-DED7-3C04-A670-AEDB150BDB1F> /usr/lib/system/libcommonCrypto.dylib
+       0x19fdc6000 -        0x19fdcfad7  libunwind.dylib (1900.125) <F753CC2B-775B-3567-B0C6-D2989CA9EBF4> /usr/lib/system/libunwind.dylib
+       0x19fdd8000 -        0x19fde269f  libcopyfile.dylib (224) <213FA18D-6145-3615-8DB5-906B6863EAB9> /usr/lib/system/libcopyfile.dylib
+       0x19fde3000 -        0x19fde698f  libcompiler_rt.dylib (103.3) <F0F65700-8E9D-35F3-AC32-952D363190BC> /usr/lib/system/libcompiler_rt.dylib
+       0x19fde7000 -        0x19fdeba1b  libsystem_collections.dylib (1698.140.3) <B77BE835-646C-3F05-BDBD-7703DE140F6A> /usr/lib/system/libsystem_collections.dylib
+       0x19fdec000 -        0x19fdef2c7  libsystem_secinit.dylib (153.140.2) <D15B45AD-1345-34BF-B8E3-05336C4046A0> /usr/lib/system/libsystem_secinit.dylib
+       0x19fdf0000 -        0x19fdf2b6f  libremovefile.dylib (81) <9BCF9A24-BECB-3DED-A78E-3A3ECD1B1757> /usr/lib/system/libremovefile.dylib
+       0x19fdf3000 -        0x19fdf3f27  libkeymgr.dylib (31) <B20C6921-D5BE-3BB5-B68C-32D90D629E39> /usr/lib/system/libkeymgr.dylib
+       0x19fdf4000 -        0x19fdfcd57  libsystem_dnssd.dylib (2600.140.3) <61F023F3-E2C5-3F19-BA1B-B02D7564ACC4> /usr/lib/system/libsystem_dnssd.dylib
+       0x19fdfd000 -        0x19fe020b3  libcache.dylib (95) <2B900F8F-9EDE-3208-AB17-BD1385B5546A> /usr/lib/system/libcache.dylib
+       0x19fe03000 -        0x19fe04ca3  libSystem.B.dylib (1351) <072C7C60-2B6C-3E07-AA56-FD1750EADC2F> /usr/lib/libSystem.B.dylib
+       0x2792e4000 -        0x2792eb109  libRosetta.dylib (349) <4EE80AAC-8204-3BD0-AB75-EDD23DE67E2F> /usr/lib/libRosetta.dylib
+       0x27a70f000 -        0x27a712deb  libsystem_darwindirectory.dylib (122) <277D32FB-F49A-3949-97A4-B190A3DF89E8> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x27a713000 -        0x27a71a523  libsystem_eligibility.dylib (181.140.5) <27E48AAA-644F-394A-9F62-49CEFB813716> /usr/lib/system/libsystem_eligibility.dylib
+       0x27a71b000 -        0x27a7206c5  libsystem_sanitizers.dylib (19) <FB86D2F7-4501-38E4-9D9A-83F960D7D7BA> /usr/lib/system/libsystem_sanitizers.dylib
