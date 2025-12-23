@@ -1,3 +1,0 @@
-/Users/artem_mik/Університет/СП/SP2lab/lab_02_muk/cmake-build-debug/CMakeFiles/lab_02_muk.dir
-/Users/artem_mik/Університет/СП/SP2lab/lab_02_muk/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/artem_mik/Університет/СП/SP2lab/lab_02_muk/cmake-build-debug/CMakeFiles/rebuild_cache.dir
